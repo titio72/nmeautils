@@ -16,6 +16,8 @@ import net.sf.marineapi.nmea.sentence.DPTSentence;
 import net.sf.marineapi.nmea.sentence.HDGSentence;
 import net.sf.marineapi.nmea.sentence.HDMSentence;
 import net.sf.marineapi.nmea.sentence.HDTSentence;
+import net.sf.marineapi.nmea.sentence.MMBSentence;
+import net.sf.marineapi.nmea.sentence.MTASentence;
 import net.sf.marineapi.nmea.sentence.MTWSentence;
 import net.sf.marineapi.nmea.sentence.MWDSentence;
 import net.sf.marineapi.nmea.sentence.MWVSentence;
@@ -192,7 +194,7 @@ public class NMEA2JSON {
 			// temperature
 			MMBSentence _s = (MMBSentence)s;
 			json +=  
-					 getPair("pressure", _s.getPresBar()*1000.0, 0);
+					 getPair("pressure", _s.getBars()*1000.0, 0);
 		} else if (s.getSentenceId().equals("VWR")) { /* OK */
 			// temperature
 			VWRSentence _s = (VWRSentence)s;

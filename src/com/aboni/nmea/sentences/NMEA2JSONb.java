@@ -9,8 +9,6 @@ import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.aboni.nmea.sentences.MMBSentence;
-import com.aboni.nmea.sentences.MTASentence;
 import com.aboni.nmea.sentences.VWRSentence;
 import com.aboni.nmea.sentences.XDPSentence;
 import com.aboni.nmea.sentences.XXXPSentence;
@@ -21,6 +19,8 @@ import net.sf.marineapi.nmea.sentence.DPTSentence;
 import net.sf.marineapi.nmea.sentence.HDGSentence;
 import net.sf.marineapi.nmea.sentence.HDMSentence;
 import net.sf.marineapi.nmea.sentence.HDTSentence;
+import net.sf.marineapi.nmea.sentence.MMBSentence;
+import net.sf.marineapi.nmea.sentence.MTASentence;
 import net.sf.marineapi.nmea.sentence.MTWSentence;
 import net.sf.marineapi.nmea.sentence.MWDSentence;
 import net.sf.marineapi.nmea.sentence.MWVSentence;
@@ -123,11 +123,11 @@ public class NMEA2JSONb {
 			json.put("temperature", _s.getTemperature());
 		} else if (s.getSentenceId().equals("MMB")) {
 			MMBSentence _s = (MMBSentence)s;
-			double p = _s.getPresBar();
+			double p = _s.getBars();
 			if (p>100)
-				json.put("pressure", _s.getPresBar());
+				json.put("pressure", _s.getBars());
 			else
-				json.put("pressure", _s.getPresBar() * 1000.0);
+				json.put("pressure", _s.getBars() * 1000.0);
 		} else if (s.getSentenceId().equals("VWR")) {
 			VWRSentence _s = (VWRSentence)s;
 			json.put("angle", _s.getAngle());
