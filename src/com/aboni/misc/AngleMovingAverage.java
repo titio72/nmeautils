@@ -43,22 +43,7 @@ public class AngleMovingAverage implements MovingAverage {
 	@Override
 	public void setSample(long ts, double angle) {
 		synchronized (this) {
-			Iterator<Sample> it = samples.iterator();
-			while (it.hasNext()) {
-				Sample s = it.next();
-				if (s.getAge(ts)>period) {
-					double a = Utils.getNormal(mAvg, s.getValue());
-					double A = ( mAvg * samples.size() - a );
-					it.remove();
-					if (samples.size()>0) {
-						mAvg = Utils.normalizeDegrees0_360(A / samples.size());
-					} else {
-						mAvg = Double.NaN;
-					}
-				} else {
-					break;
-				}
-			}
+			setTime(ts);
 	
 			double a = Utils.normalizeDegrees0_360(angle);
 			samples.add(new Sample(ts, a));
@@ -82,4 +67,27 @@ public class AngleMovingAverage implements MovingAverage {
 			return mAvg;
 		}
 	}
+
+	@Override
+	public double setTime(long ts) {
+		synchronized (this) {
+			Iterator<Sample> it = samples.iterator();
+			while (it.hasNext()) {
+				Sample s = it.next();
+				if (s.getAge(ts)>period) {
+					double a = Utils.getNormal(mAvg, s.getValue());
+					double A = ( mAvg * samples.size() - a );
+					it.remove();
+					if (samples.size()>0) {
+						mAvg = Utils.normalizeDegrees0_360(A / samples.size());
+					} else {
+						mAvg = Double.NaN;
+					}
+				} else {
+					break;
+				}
+			}
+			return mAvg;
+		}
+		}
 }

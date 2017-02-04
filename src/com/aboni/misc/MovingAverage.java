@@ -10,4 +10,6 @@ public interface MovingAverage {
 
 	double getAvg();
 
+	double setTime(long ts);
+
 }

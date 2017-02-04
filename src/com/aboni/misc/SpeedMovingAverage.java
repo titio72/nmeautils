@@ -30,22 +30,7 @@ public class SpeedMovingAverage implements MovingAverage {
 	@Override
 	public void setSample(long ts, double value) {
 		synchronized (this) {
-			Iterator<Sample> it = samples.iterator();
-			while (it.hasNext()) {
-				Sample s = it.next();
-				if (s.getAge(ts)>period) {
-					double V = ( mAvg * samples.size() - value );
-					it.remove();
-					if (samples.size()>0) {
-						mAvg = V / samples.size();
-					} else {
-						mAvg = Double.NaN;
-					}
-				} else {
-					break;
-				}
-			}
-	
+			setTime(ts);
 			samples.add(new Sample(ts, value));
 			if (Double.isNaN(mAvg)) {
 				mAvg = value;
@@ -60,6 +45,29 @@ public class SpeedMovingAverage implements MovingAverage {
 		synchronized (this) {
 			return mAvg;
 		}
+	}
+
+	@Override
+	public double setTime(long ts) {
+		synchronized (this) {
+			Iterator<Sample> it = samples.iterator();
+			while (it.hasNext()) {
+				Sample s = it.next();
+				if (s.getAge(ts)>period) {
+					double V = ( mAvg * samples.size() - s.getValue() );
+					it.remove();
+					if (samples.size()>0) {
+						mAvg = V / samples.size();
+					} else {
+						mAvg = Double.NaN;
+					}
+				} else {
+					break;
+				}
+			}
+			return mAvg;
+		}
+				
 	}
 
 }

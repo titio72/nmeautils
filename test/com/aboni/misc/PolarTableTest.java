@@ -58,10 +58,6 @@ public class PolarTableTest extends TestCase {
 		assertEquals(4.09, t.getSpeed(180, 10), 0.0001);
 		assertEquals(7.75, t.getSpeed(180, 20), 0.0001);
 		assertEquals(7.26, t.getSpeed(90, 10), 0.0001);
-
-		assertEquals(0.0, t.getSpeed(90, 9), 0.0001);
-
-		assertEquals(0.0, t.getSpeed(90, 25), 0.0001);
 		
 	}
 	
