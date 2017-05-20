@@ -4,10 +4,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class PolarTableTest extends TestCase {
+public class PolarTableTest {
 	private static final String dufour385 = 
 		"angle,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20\n" +
 		"32,,1,,1.99,,03.03,,3.95,,4.68,,05.21,,05.56,,5.79,,,,5.98\n" +
@@ -31,7 +31,7 @@ public class PolarTableTest extends TestCase {
 		"180,,1,,1.97,,2.99,,3.98,,04.09,,5.74,,06.47,,7,,,,7.75";
 	
 	
-	
+	@Test
 	public void testInterpolateSpeed() throws IOException {
 		PolarTable t = new PolarTable();
 		t.load(new StringReader(dufour385));
@@ -50,6 +50,7 @@ public class PolarTableTest extends TestCase {
 		assert(speedRun25Kn>=7.75);
 	}
 	
+	@Test
 	public void testLoad() throws IOException {
 		PolarTable t = new PolarTable();
 		t.load(new StringReader(dufour385));
@@ -61,6 +62,7 @@ public class PolarTableTest extends TestCase {
 		
 	}
 	
+	@Test
 	public void testLoadAndDump() throws IOException {
 		PolarTable t = new PolarTable();
 		t.load(new StringReader(dufour385));

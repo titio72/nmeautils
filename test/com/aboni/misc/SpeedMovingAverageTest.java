@@ -1,14 +1,18 @@
 package com.aboni.misc;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class SpeedMovingAverageTest extends TestCase {
+import static org.junit.Assert.*;
 
+public class SpeedMovingAverageTest {
+
+	@Test
 	public void testEmpty() {
 		SpeedMovingAverage sma = new SpeedMovingAverage(1000);
 		assertTrue(Double.isNaN(sma.getAvg()));
 	}
 	
+	@Test
 	public void testSamplesDoNotSlide() {
 		SpeedMovingAverage sma = new SpeedMovingAverage(1000);
 		sma.setSample(100, 10.5);
@@ -16,6 +20,7 @@ public class SpeedMovingAverageTest extends TestCase {
 		assertEquals(11.0,  sma.getAvg(), 0.00001);
 	}
 	
+	@Test
 	public void testSamplesSlide() {
 		SpeedMovingAverage sma = new SpeedMovingAverage(1000);
 		sma.setSample( 100, 10.5);
@@ -24,6 +29,7 @@ public class SpeedMovingAverageTest extends TestCase {
 		assertEquals(12.0,  sma.getAvg(), 0.00001);
 	}
 	
+	@Test
 	public void testSlideWIthNoSamples0() {
 		SpeedMovingAverage sma = new SpeedMovingAverage(1000);
 		sma.setSample( 100, 10.5);
@@ -32,6 +38,7 @@ public class SpeedMovingAverageTest extends TestCase {
 		assertTrue(Double.isNaN(sma.getAvg()));
 	}
 	
+	@Test
 	public void testSlideWIthNoSamples1() {
 		SpeedMovingAverage sma = new SpeedMovingAverage(1000);
 		sma.setSample( 100, 10.5);

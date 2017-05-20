@@ -1,14 +1,12 @@
 package com.aboni.misc;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-public class AngleMovingAverageTest extends TestCase {
+import org.junit.Test;
 
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
+public class AngleMovingAverageTest {
 
-
+	@Test
 	public void testNoPurgeNoNorthCross() {
 		Sample[] samples = new Sample[] {
 				new Sample(      0, 3.0),
@@ -21,6 +19,7 @@ public class AngleMovingAverageTest extends TestCase {
 		assertEquals(3.0, m.getAvg(), 0.00001);
 	}
 
+	@Test
 	public void testNoPurgeCrossNorth() {
 		Sample[] samples = new Sample[] {
 				new Sample(      0,   1.0),
@@ -33,6 +32,7 @@ public class AngleMovingAverageTest extends TestCase {
 		assertEquals(1.0, m.getAvg(), 0.00001);
 	}
 
+	@Test
 	public void testNoPurgeCrossNorthNeg() {
 		Sample[] samples = new Sample[] {
 				new Sample(      0,   1.0),
@@ -45,6 +45,7 @@ public class AngleMovingAverageTest extends TestCase {
 		assertEquals(1.0, m.getAvg(), 0.00001);
 	}
 	
+	@Test
 	public void testPurgeNonCrossingValue() {
 		Sample[] samples = new Sample[] {
 				new Sample(      0,   1.0),
@@ -58,6 +59,7 @@ public class AngleMovingAverageTest extends TestCase {
 		assertEquals(1.0, m.getAvg(), 0.00001);
 	}
 	
+	@Test
 	public void testCrossNorth330_030() {
 		MovingAverage m = new AngleMovingAverage(10000);
 		double a = 330;
@@ -67,9 +69,4 @@ public class AngleMovingAverageTest extends TestCase {
 		}
 		assertEquals(30.0, m.getAvg(), 5.0);
 	}
-	
-	
-
-	
-	
 }

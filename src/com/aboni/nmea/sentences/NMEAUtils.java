@@ -6,6 +6,7 @@ import java.util.TimeZone;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.DateSentence;
 import net.sf.marineapi.nmea.sentence.PositionSentence;
+import net.sf.marineapi.nmea.sentence.RMCSentence;
 import net.sf.marineapi.nmea.sentence.Sentence;
 import net.sf.marineapi.nmea.sentence.TimeSentence;
 import net.sf.marineapi.nmea.util.Date;
@@ -64,9 +65,22 @@ public class NMEAUtils {
 		return d * 1852.0;
 	}
 	
+
+    public static Calendar getTimestamp(RMCSentence s) {
+    	return getTimestamp(s.getTime(), s.getDate());
+    }
     
     public static Calendar getTimestamp(Time time, Date date) { 
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+       	int h = time.getOffsetHours();
+    	int m = time.getOffsetMinutes();
+    	Calendar c = null;
+    	if (h==0 && m==0) {
+	    	c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    	} else {
+	    	String s = String.format("+%02d:%02d", h, m);
+	    	c = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT" + s));
+    	}
+        c.set(Calendar.MILLISECOND, 0);
         c.set(Calendar.SECOND, (int)time.getSeconds());
         c.set(Calendar.MINUTE, time.getMinutes());
         c.set(Calendar.HOUR_OF_DAY, time.getHour());
