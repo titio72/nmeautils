@@ -2,7 +2,6 @@ package com.aboni.misc;
 
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.HDGSentence;
-import net.sf.marineapi.nmea.sentence.HeadingSentence;
 import net.sf.marineapi.nmea.sentence.MWDSentence;
 import net.sf.marineapi.nmea.sentence.MWVSentence;
 import net.sf.marineapi.nmea.sentence.SentenceId;
@@ -11,57 +10,109 @@ import net.sf.marineapi.nmea.sentence.VHWSentence;
 import net.sf.marineapi.nmea.util.Units;
 
 public class NMEATrueWind {
-	private HeadingSentence heading;
-	private VHWSentence speed;
-	private MWVSentence awind;
-	private MWVSentence twind;
-	private MWDSentence wind;
 	
-	long tsHeading, tsSpeed, tsAWind, tsTWind, tsWind;
+	private class Event<C> {
+		C event;
+		long timestamp;
+		
+		Event(C sentence, long t) {
+			timestamp = t;
+			event = sentence;
+		}
+		
+		long getAge(long now) {
+			if (event!=null) {
+				return now - timestamp;
+			} else {
+				return -1;
+			}
+		}
+		/*
+		long getElapsed(long now) {
+			return now - timestamp;
+		}
+		*/
+		void setEvent(C e, long time) {
+			event = e;
+			timestamp = time;
+		}
+	}
+	
+	private Event<HDGSentence> eHeading = new Event<HDGSentence>(null, 0);
+	private Event<VHWSentence> eSpeed = new Event<VHWSentence>(null, 0);
+	private Event<MWVSentence> eAWind = new Event<MWVSentence>(null, 0);
+	private Event<MWVSentence> eTWind = new Event<MWVSentence>(null, 0);
+	private Event<MWDSentence> eWind = new Event<MWDSentence>(null, 0);
 	
 	private TalkerId id;
-	private static final int THRESHOLD = 300 /*ms*/;
+	private static final int THRESHOLD = 800 /*ms*/;
 	
 	public NMEATrueWind(TalkerId id) {
 		this.id = id;
 	}
-    
-    /**
-     * Calculate the wind direction relative to north and return it in the form of MWDSentence message.
-     * The calculation takes into account the age of the wind and heading sample and requires that they are not
-     * farther the "threshold" milliseconds. 
-     * @param threshold The consistency threshold of wind and heading 
-     * @return The MWDSentence containing the wind speed and direction respect to north 
-     */
-	public MWVSentence getMWVSentence(long threshold) {
+	
+	public void calcMWDSentence(long time) {
+		calcMWDSentence(THRESHOLD, time);
+	}
+	
+	public void calcMWDSentence(long threshold, long time) {
+		if (eHeading.event!=null && eTWind.event!=null && 
+				Math.abs(eHeading.timestamp - eTWind.timestamp)<threshold/*ms*/) {
+			MWDSentence s = (MWDSentence) SentenceFactory.getInstance().createParser(id, SentenceId.MWD);
+
+			double td = getTrueHeading(eHeading.event) + eTWind.event.getAngle();
+			td = Utils.normalizeDegrees0_360(td);
+			s.setTrueWindDirection(td);
+
+			double md = getMagHeading(eHeading.event) + eTWind.event.getAngle();
+			md = Utils.normalizeDegrees0_360(md);
+			s.setMagneticWindDirection(md);
+
+			s.setWindSpeedKnots(eTWind.event.getSpeed());
+			s.setWindSpeed(eTWind.event.getSpeed()*0.51444444444);
+			
+			eWind.setEvent(s, time);
+		}
+	}
+
+    private static double getTrueHeading(HDGSentence h) {
+		double dev = 0.0, var = 0.0;
+		try { dev = h.getDeviation(); } catch (Exception e) {}
+		try { var = h.getVariation(); } catch (Exception e) {}
+		return h.getHeading() + var + dev;
+    }
+	
+    private static double getMagHeading(HDGSentence h) {
+		double dev = 0.0;
+		try { dev = h.getDeviation(); } catch (Exception e) {}
+		return h.getHeading() + dev;
+    }
+	
+	public void calcMWVSentence(long time) {
+		calcMWVSentence(THRESHOLD, time);
+	}
+	
+	public void calcMWVSentence(long threshold, long time) {
 		/*
 		 * Check if the wind and heading are close enough to make sense summing them up.
 		 */
-		if (speed!=null && awind!=null && Math.abs(tsSpeed-tsAWind)<threshold/*ms*/) {
+		if (eSpeed.event!=null && eAWind.event!=null
+				&& Math.abs(eSpeed.timestamp - eAWind.timestamp)<threshold/*ms*/) {
 			MWVSentence mwvt = (MWVSentence) SentenceFactory.getInstance().createParser(id, SentenceId.MWV);
-			double s = speed.getSpeedKnots();
-			double wdm = awind.getAngle();
-			double ws = awind.getSpeed();
+			double s = eSpeed.event.getSpeedKnots();
+			double wdm = eAWind.event.getAngle();
+			double ws = eAWind.event.getSpeed();
 			TrueWind tw = new TrueWind(s, wdm, ws);
 			mwvt.setAngle(tw.getTrueWindDeg());
 			mwvt.setSpeed(tw.getTrueWindSpeed());
-			mwvt.setSpeedUnit(Units.KNOT);	
-			twind = mwvt;
-			tsTWind = System.currentTimeMillis();
-			return mwvt;
-		} else {
-			return null;
+			mwvt.setSpeedUnit(Units.KNOT);
+			mwvt.setTrue(true);
+			eTWind.setEvent(mwvt, time);
 		}
 	}
-	
-	/**
-	 * Set the heading (necessary to calculate the direction of the wind from north).
-	 * The sample will be tagged with a timestamp set to now. 
-	 * @param s
-	 */
-	public void setHeading(HDGSentence s) {
-		setHeading(s, System.currentTimeMillis());
-	}
+
+	/**********************************************************/
+
 	
 	/**
 	 * Set the heading (necessary to calculate the direction of the wind from north).
@@ -69,18 +120,46 @@ public class NMEATrueWind {
 	 * @param time	The time of the heading sample
 	 */
 	public void setHeading(HDGSentence s, long time) {
-		heading = s;
-		tsHeading = (s==null)?0:time;
+		eHeading.setEvent(s, time);
 	}
 	
-	/**
-	 * Set the wind information. Only "true" wind will be taken into account while "relative" will be discarded.
-	 * The timestamp is as of now.
-	 * @param s
-	 */
-	public void setWind(MWVSentence s) {
-		setWind(s, System.currentTimeMillis());
+	public HDGSentence getHeading() {
+		return eHeading.event;
 	}
+
+	public long getHeadingAge(long now) {
+		return eHeading.getAge(now);
+	}
+	
+	/**********************************************************/
+	
+	public void setWind(MWDSentence s, long time) {
+		eWind.setEvent(s, time);
+	}
+	
+	public MWDSentence getWind() {
+		return eWind.event;
+	}
+	
+	public long getWindAge(long now) {
+		return eWind.getAge(now);
+	}
+
+	/**********************************************************/
+	
+	public void setSpeed(VHWSentence s, long time) {
+		eSpeed.setEvent(s, time);
+	}
+	
+	public VHWSentence getSpeed() {
+		return eSpeed.event;
+	}
+	
+	public long getSpeedAge(long now) {
+		return eSpeed.getAge(now);
+	}
+	
+	/**********************************************************/
 	
 	/**
 	 * Set the wind information.
@@ -90,36 +169,26 @@ public class NMEATrueWind {
 	public void setWind(MWVSentence s, long time) {
 		if (s!=null) {
 			if (s.isTrue()) {
-				tsTWind = time;
-				twind = s;
+				eTWind.setEvent(s, time);
 			} else {
-				tsAWind = time;
-				awind = s;
+				eAWind.setEvent(s, time);
 			}
 		}
 	}
 	
-	public long getWindAge() {
-		return getWindAge(System.currentTimeMillis());
-	}
-
-	public long getWindAge(long now) {
-		if (wind!=null) {
-			return now - tsWind;
-		} else {
-			return -1;
-		}
+	public MWVSentence getTrueWind() {
+		return eTWind.event;
 	}
 	
-	public long getTruwWindAge() {
-		return getTruwWindAge(System.currentTimeMillis());
+	public long getTrueWindAge(long now) {
+		return eTWind.getAge(now);
 	}
-
-	public long getTruwWindAge(long now) {
-		if (twind!=null) {
-			return now - tsTWind;
-		} else {
-			return -1;
-		}
+	
+	public MWVSentence getApparentWind() {
+		return eAWind.event;
+	}
+	
+	public long getAppWindAge(long now) {
+		return eAWind.getAge(now);
 	}
 }
