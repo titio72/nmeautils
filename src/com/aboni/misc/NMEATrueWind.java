@@ -45,19 +45,19 @@ public class NMEATrueWind {
 	private Event<MWDSentence> eWind = new Event<MWDSentence>(null, 0);
 	
 	private TalkerId id;
-	private static final int THRESHOLD = 800 /*ms*/;
 	
 	public NMEATrueWind(TalkerId id) {
 		this.id = id;
 	}
 	
-	public void calcMWDSentence(long time) {
-		calcMWDSentence(THRESHOLD, time);
+	public void calcMWDSentence(long threshold, long time) {
+		if (Math.abs(eHeading.timestamp - eTWind.timestamp)<threshold/*ms*/) {
+			calcMWDSentence(time);
+		}
 	}
 	
-	public void calcMWDSentence(long threshold, long time) {
-		if (eHeading.event!=null && eTWind.event!=null && 
-				Math.abs(eHeading.timestamp - eTWind.timestamp)<threshold/*ms*/) {
+	public void calcMWDSentence(long time) {
+		if (eHeading.event!=null && eTWind.event!=null) {
 			MWDSentence s = (MWDSentence) SentenceFactory.getInstance().createParser(id, SentenceId.MWD);
 
 			double td = getTrueHeading(eHeading.event) + eTWind.event.getAngle();
@@ -88,16 +88,17 @@ public class NMEATrueWind {
 		return h.getHeading() + dev;
     }
 	
-	public void calcMWVSentence(long time) {
-		calcMWVSentence(THRESHOLD, time);
+	public void calcMWVSentence(long threshold, long time) {
+		if (Math.abs(eSpeed.timestamp - eAWind.timestamp)<threshold/*ms*/) {
+			calcMWVSentence(time);
+		}
 	}
 	
-	public void calcMWVSentence(long threshold, long time) {
+	public void calcMWVSentence(long time) {
 		/*
 		 * Check if the wind and heading are close enough to make sense summing them up.
 		 */
-		if (eSpeed.event!=null && eAWind.event!=null
-				&& Math.abs(eSpeed.timestamp - eAWind.timestamp)<threshold/*ms*/) {
+		if (eSpeed.event!=null && eAWind.event!=null) {
 			MWVSentence mwvt = (MWVSentence) SentenceFactory.getInstance().createParser(id, SentenceId.MWV);
 			double s = eSpeed.event.getSpeedKnots();
 			double wdm = eAWind.event.getAngle();

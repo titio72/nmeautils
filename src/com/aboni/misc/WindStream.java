@@ -19,26 +19,37 @@ public class WindStream {
 	
 	private long lastMWV_T;
 	private long lastMWD;
+	private long lastMWV_R;
+	private long lastVHW;
 
 	private long lastSentMWD;
 	
-	private static final long THRESHOLD = 2000;
+	//private static final long VALID_THRESHOLD = 2000;
+	private static final long CALC_THRESHOLD = 2000;
 	private static final long SEND_THROTTLING = 900;
+	
+	private SpeedMovingAverage dtMWV_VHW; 
+	private SpeedMovingAverage dtVHW_MWV; 
+	private String updateTrueWindOnSentence = "MWV"; 
 	
 	public WindStream(TalkerId tid) {
 		windCalc = new NMEATrueWind(tid);
 		lastMWV_T = 0;
 		lastMWD = 0;
+		lastMWV_R = 0;
+		lastVHW = 0;
+		dtMWV_VHW = new SpeedMovingAverage(10*1000);
+		dtVHW_MWV = new SpeedMovingAverage(10*1000);
 	}
 
 	private boolean shallCalcMWV_T(long now) {
 		if (lastMWV_T==0) lastMWV_T = now;
-		return (now - lastMWV_T) > THRESHOLD;
+		return (now - lastMWV_T) > CALC_THRESHOLD;
 	}
 	
 	private boolean shallCalcMWD(long now) {
 		if (lastMWD==0) lastMWD = now;
-		return (now - lastMWD) > THRESHOLD && (now - lastSentMWD) > SEND_THROTTLING;
+		return (now - lastMWD) > CALC_THRESHOLD && (now - lastSentMWD) > SEND_THROTTLING;
 	}
 	
 	public void onSentence(Sentence s) {
@@ -50,10 +61,13 @@ public class WindStream {
 			MWVSentence mwv = (MWVSentence)s;
 			if (mwv.isTrue()) {
 				lastMWV_T = time;
+			} else {
+				lastMWV_R = time;
+				updateStats();
 			}
 			onProcSentence(s, time);
 			windCalc.setWind(mwv, time);
-			if (shallCalcMWV_T(time)) {
+			if (shallCalcMWV_T(time) && "MWV".equals(updateTrueWindOnSentence)) {
 				windCalc.calcMWVSentence(time);
 				onProcSentence(windCalc.getTrueWind(), time);
 			}
@@ -69,11 +83,27 @@ public class WindStream {
 		} else if (s.getSentenceId().equals(SentenceId.VHW.name())) {
 			VHWSentence vhw = (VHWSentence)s;
 			windCalc.setSpeed(vhw, time);
+			lastVHW = time;
+			updateStats();
 			onProcSentence(s, time);
 		} else if (s.getSentenceId().equals(SentenceId.HDG.name())) {
 			HDGSentence h = (HDGSentence)s;
 			windCalc.setHeading(h, time);
 			onProcSentence(s, time);
+		}
+	}
+
+	private void updateStats() {
+		if (lastMWV_R > lastVHW) {
+			dtVHW_MWV.setSample(lastMWV_R, lastMWV_R - lastVHW);
+		} else {
+			dtMWV_VHW.setSample(lastVHW, lastVHW - lastMWV_R);
+		}
+		if (dtMWV_VHW.getAvg()<dtMWV_VHW.getAvg()) {
+			updateTrueWindOnSentence = "MWV";
+		} else {
+			// disable it for now
+			//updateTrueWindOnSentence = "VHW";
 		}
 	}
 
@@ -99,8 +129,4 @@ public class WindStream {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
-	
 }
