@@ -90,6 +90,8 @@ public class WindStream {
 			HDGSentence h = (HDGSentence)s;
 			windCalc.setHeading(h, time);
 			onProcSentence(s, time);
+		} else {
+			onProcSentence(s, time);
 		}
 	}
 
