@@ -107,7 +107,7 @@ public class WindStream {
 		}
 	}
 
-	private void onProcSentence(Sentence s, long time) {
+	protected void onProcSentence(Sentence s, long time) {
 		if (s!=null) {
 			System.out.println(time + " " + s.toSentence());
 		}
