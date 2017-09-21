@@ -18,8 +18,8 @@ public class STALKSentenceTest {
 	
 	@Test
 	public void testCreateFromString() {
-		String nmea = "$STALK,53,20,21";
-		STALKSentence s = (STALKSentence) SentenceFactory.getInstance().createParser(nmea);
+		String nmea = "$STALK,53,20,21*6A";
+		STALKSentence s = new STALKParser(nmea);
 		System.out.println(s);
 	}
 
