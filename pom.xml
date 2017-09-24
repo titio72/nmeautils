@@ -17,11 +17,6 @@
 			</plugin>
 		</plugins>
 	</build>
-	<scm>
-		<url>svn://192.168.2.99/NMEAUtils</url>
-		<connection>svn://192.168.2.99//NMEAUtils</connection>
-		<developerConnection>svn://192.168.2.99//NMEAUtils</developerConnection>
-	</scm>
 	<distributionManagement>
 		<repository>
 			<uniqueVersion>false</uniqueVersion>
