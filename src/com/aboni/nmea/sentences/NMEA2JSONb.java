@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import com.aboni.nmea.sentences.VWRSentence;
 import com.aboni.nmea.sentences.XDPSentence;
 import com.aboni.nmea.sentences.XXXPSentence;
+import com.aboni.seatalk.Stalk84;
 
 import net.sf.marineapi.nmea.parser.DataNotAvailableException;
 import net.sf.marineapi.nmea.sentence.DBTSentence;
@@ -25,6 +26,7 @@ import net.sf.marineapi.nmea.sentence.MTWSentence;
 import net.sf.marineapi.nmea.sentence.MWDSentence;
 import net.sf.marineapi.nmea.sentence.MWVSentence;
 import net.sf.marineapi.nmea.sentence.RMCSentence;
+import net.sf.marineapi.nmea.sentence.STALKSentence;
 import net.sf.marineapi.nmea.sentence.Sentence;
 import net.sf.marineapi.nmea.sentence.SentenceId;
 import net.sf.marineapi.nmea.sentence.VHWSentence;
@@ -165,6 +167,24 @@ public class NMEA2JSONb {
                 mJ.put("unit", m.getUnits());
                 json.put(m.getName(), mJ);
             }
+		} else if (s.getSentenceId().equals("ALK")) {
+			STALKSentence _s = (STALKSentence)s;
+			switch (_s.getCommand()) {
+			case "84":
+				Stalk84 s84 = new Stalk84(_s);
+				json.put("topic", "auto");
+				json.put("heading", s84.getHeading());
+				json.put("headingAuto", s84.getAutoDeg());
+				json.put("rudder", s84.getRudder());
+				json.put("status", "StandBy");
+				if (s84.isAuto()) json.put("status", "Auto");
+				if (s84.isWind()) json.put("status", "WindVane");
+				if (s84.isTrack()) json.put("status", "Track");
+				json.put("offCourse", s84.isErr_off_course());
+				json.put("windShift", s84.isErr_wind_shift());
+				break;
+			default: 
+			}
 		}
 		return json;
 	}
