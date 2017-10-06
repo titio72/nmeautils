@@ -20,17 +20,15 @@
 	<distributionManagement>
 		<repository>
 			<uniqueVersion>false</uniqueVersion>
-			<id>aboniInt</id>
+			<id>internal</id>
 			<name>Andrea Repository</name>
 			<url>http://192.168.2.99:8100/repository/internal</url>
-			<layout>default</layout>
 		</repository>
 		<snapshotRepository>
 			<uniqueVersion>true</uniqueVersion>
-			<id>aboniSnp</id>
+			<id>snapshot</id>
 			<name>Andrea Repository</name>
 			<url>http://192.168.2.99:8100/repository/snapshots</url>
-			<layout>legacy</layout>
 		</snapshotRepository>
 	</distributionManagement>
 	<dependencies>
