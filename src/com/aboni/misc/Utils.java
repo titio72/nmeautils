@@ -97,6 +97,20 @@ public class Utils {
 		return a;
 	}
 
+	private static String[] CARDINALS = new String[] {
+			"N", "NNE", "NE", "ENE", 
+			"E", "ESE", "SE", "SSE",
+			"S", "SSW", "SW", "WSW",
+			"W", "WNW", "NW", "NNW"
+	};
+	
+	public static String getCardinal(double deg) {
+		double d = normalizeDegrees0_360(deg);
+		d = d / 22.5;
+		int _d = (int) Math.round(d);
+		return CARDINALS[_d % 16];
+	}
+
 	public static Position calcNewLL(Position p0, double heading, double dist) {
 		GeodesicData d = Geodesic.WGS84.Direct(p0.getLatitude(), p0.getLongitude(), heading, dist * 1852);
 		return new Position(d.lat2, d.lon2);

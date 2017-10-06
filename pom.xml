@@ -59,4 +59,7 @@
 		<connection>scm:git:git@github.com:titio72/mmeautils</connection>
 		<developerConnection>scm:git:git@github.com:titio72/mmeautils</developerConnection>
 	</scm>
+	<properties>
+    	<skipTests>true</skipTests>
+  	</properties>
 </project>
