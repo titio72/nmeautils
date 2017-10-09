@@ -2,7 +2,6 @@ package com.aboni.seatalk;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 
 import net.sf.marineapi.nmea.sentence.STALKSentence;
 
@@ -29,12 +28,12 @@ import net.sf.marineapi.nmea.sentence.STALKSentence;
                     M & 0x04 = 4 : Off course 
                     M & 0x08 = 8 : Wind Shift
                   Rudder position: RR degrees (positive values steer right, 
-                    negative values steer left. Example: 0xFE = 2° left) 
+                    negative values steer left. Example: 0xFE = 2ï¿½ left) 
                   SS & 0x01 : when set, turns off heading display on 600R control. 
                   SS & 0x02 : always on with 400G 
-                  SS & 0x08 : displays “NO DATA” on 600R 
-                  SS & 0x10 : displays “LARGE XTE” on 600R 
-                  SS & 0x80 : Displays “Auto Rel” on 600R 
+                  SS & 0x08 : displays ï¿½NO DATAï¿½ on 600R 
+                  SS & 0x10 : displays ï¿½LARGE XTEï¿½ on 600R 
+                  SS & 0x80 : Displays ï¿½Auto Relï¿½ on 600R 
                   TT : Always 0x08 on 400G computer, always 0x05 on 150(G) computer 
 
 
@@ -43,6 +42,11 @@ import net.sf.marineapi.nmea.sentence.STALKSentence;
 
 public class Stalk84 {
 
+	public enum TURN {
+		PORT,
+		STARBOARD
+	}
+	
 	private int heading;
 	private int rudder;
 	private int autoDeg;
@@ -51,6 +55,7 @@ public class Stalk84 {
 	private boolean track;
 	private boolean err_off_course;
 	private boolean err_wind_shift;
+	private TURN turning;
 
 	public Stalk84(STALKSentence s) {
 		if ("84".equals(s.getCommand())) {
@@ -101,6 +106,12 @@ public class Stalk84 {
 	public int getAutoDeg() {
 		return autoDeg;
 	}
+
+	public TURN getTurning() {
+		return turning;
+	}
+	
+	
 	
 	private void calc(String[] data) {
 		byte u = (byte)Integer.parseInt(data[1].substring(0, 1), 16);
@@ -122,7 +133,11 @@ public class Stalk84 {
 		if (auto) {
 			autoDeg = xy/2 + ((v & 0xC) >> 2) * 90;
 		}
-		heading = (vw & 63) * 2 + (u & 0x03) * 90;
+		heading = (u & 0x3) * 90 + (vw & 0x3F)* 2 + ( ((u & 0xC) != 0) ? ( ((u & 0xC) == 0xC) ? 2 : 1): 0); 
+
+        //Most significant bit of U = 1: Increasing heading, Ship turns right 
+        //Most significant bit of U = 0: Decreasing heading, Ship turns left
+		turning = ((u & 0x8) != 0) ? TURN.PORT : TURN.STARBOARD;
 	}
 
 	public void dump(OutputStream p) throws IOException {
