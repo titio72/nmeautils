@@ -7,6 +7,10 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.aboni.seatalk.Stalk84.ERROR;
+import com.aboni.seatalk.Stalk84.STATUS;
+import com.aboni.seatalk.Stalk84.TURN;
+
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.STALKSentence;
 
@@ -121,6 +125,58 @@ public class Stalk84Test {
 		Stalk84 s1 = new Stalk84(s0.getHeading(), s0.getAutoDeg(), s0.getRudder(), 
 				s0.getStatus(), s0.getError(), s0.getTurning());
 		assertEquals(s0.getSTALKSentence(), s1.getSTALKSentence());
+	}
+	
+	@Test 
+	public void testReverse1() {
+		Stalk84 s1 = new Stalk84(285, 284, 1, STATUS.STATUS_AUTO, ERROR.ERROR_NONE, TURN.STARBOARD);
+		Stalk84 s0 = Stalk84.parse(s1.getSTALKSentence());
+		
+		assertEquals(285, s0.getHeading());
+		assertEquals(284, s0.getAutoDeg());
+		assertEquals(1, s0.getRudder());
+		assertEquals(TURN.STARBOARD, s0.getTurning());
+		assertEquals(STATUS.STATUS_AUTO, s0.getStatus());
+		assertEquals(ERROR.ERROR_NONE, s0.getError());
+	}
+
+	@Test 
+	public void testReverse2() {
+		Stalk84 s1 = new Stalk84(97, 95, 1, STATUS.STATUS_AUTO, ERROR.ERROR_NONE, TURN.STARBOARD);
+		Stalk84 s0 = Stalk84.parse(s1.getSTALKSentence());
+		
+		assertEquals(97, s0.getHeading());
+		assertEquals(95, s0.getAutoDeg());
+		assertEquals(1, s0.getRudder());
+		assertEquals(TURN.STARBOARD, s0.getTurning());
+		assertEquals(STATUS.STATUS_AUTO, s0.getStatus());
+		assertEquals(ERROR.ERROR_NONE, s0.getError());
+	}
+	
+	@Test 
+	public void testReverse3() {
+		Stalk84 s1 = new Stalk84(97, 0, 1, STATUS.STATUS_STANDBY, ERROR.ERROR_NONE, TURN.STARBOARD);
+		Stalk84 s0 = Stalk84.parse(s1.getSTALKSentence());
+		
+		assertEquals(97, s0.getHeading());
+		assertEquals(0, s0.getAutoDeg());
+		assertEquals(1, s0.getRudder());
+		assertEquals(TURN.STARBOARD, s0.getTurning());
+		assertEquals(STATUS.STATUS_STANDBY, s0.getStatus());
+		assertEquals(ERROR.ERROR_NONE, s0.getError());
+	}
+	
+	@Test 
+	public void testReverse4() {
+		Stalk84 s1 = new Stalk84(179, -16, 1, STATUS.STATUS_WINDVANE, ERROR.ERROR_NONE, TURN.STARBOARD);
+		Stalk84 s0 = Stalk84.parse(s1.getSTALKSentence());
+		
+		assertEquals(179, s0.getHeading());
+		assertEquals(344, s0.getAutoDeg());
+		assertEquals(1, s0.getRudder());
+		assertEquals(TURN.STARBOARD, s0.getTurning());
+		assertEquals(STATUS.STATUS_WINDVANE, s0.getStatus());
+		assertEquals(ERROR.ERROR_NONE, s0.getError());
 	}
 	
 }

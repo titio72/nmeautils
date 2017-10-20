@@ -3,6 +3,8 @@ package com.aboni.seatalk;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.aboni.misc.Utils;
+
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.Checksum;
 import net.sf.marineapi.nmea.sentence.STALKSentence;
@@ -99,9 +101,9 @@ public class Stalk84 {
 	private String sentence;
 	
 	public Stalk84(int heading, int headingAuto, int rudder, STATUS status, ERROR error, TURN turn) {
-		this.heading = heading;
-		this.autoDeg = headingAuto;
-		this.rudder = rudder;
+		this.heading = (int)Utils.normalizeDegrees0_360(heading);
+		this.autoDeg = (int)Utils.normalizeDegrees0_360(headingAuto);
+		this.rudder = (int)Utils.normalizeDegrees180_180(rudder);
 		this.error = error.value;
 		this.status = status.value;
 		this.turning = turn;
@@ -231,7 +233,7 @@ public class Stalk84 {
 
 		rudder = rr;
 		
-		if (isAuto()) {
+		if (isAuto() || isWind()) {
 			autoDeg = xy/2 + ((v & 0xC) >> 2) * 90;
 		}
 		heading = (u & 0x3) * 90 + (vw & 0x3F)* 2 + ( ((u & 0xC) != 0) ? ( ((u & 0xC) == 0xC) ? 2 : 1): 0); 
