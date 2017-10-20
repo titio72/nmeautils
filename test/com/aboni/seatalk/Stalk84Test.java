@@ -87,4 +87,13 @@ public class Stalk84Test {
 		assertEquals(3, ss.getRudder());
 	}
 
+	@Test 
+	public void testReverse() {
+		String nmea = "$STALK,84,06,03,00,40,00,03,02,06";
+		Stalk84 s0 = Stalk84.parse(nmea);
+		Stalk84 s1 = new Stalk84(s0.getHeading(), s0.getAutoDeg(), s0.getRudder(), 
+				s0.getStatus(), s0.getError(), s0.getTurning());
+		assertEquals(s0.getSTALKSentence(), s1.getSTALKSentence());
+	}
+	
 }

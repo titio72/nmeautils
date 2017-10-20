@@ -3,6 +3,8 @@ package com.aboni.seatalk;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import net.sf.marineapi.nmea.parser.SentenceFactory;
+import net.sf.marineapi.nmea.sentence.Checksum;
 import net.sf.marineapi.nmea.sentence.STALKSentence;
 
 
@@ -43,26 +45,113 @@ import net.sf.marineapi.nmea.sentence.STALKSentence;
 public class Stalk84 {
 
 	public enum TURN {
-		PORT,
-		STARBOARD
+		PORT(0),
+		STARBOARD(1);
+		
+		int value;
+		TURN(int v) {value = v;}
+	}
+	
+	public enum STATUS {
+		STATUS_STANDBY(0x0), 
+		STATUS_AUTO(0x2),
+		STATUS_WINDVANE(0x4), 
+		STATUS_TRACK(0x8); 
+
+		int value;
+		STATUS(int v) {value = v;}
+		static STATUS fromValue(int i) {
+			switch (i) {
+			case 0x0: return STATUS_STANDBY; 
+			case 0x2: return STATUS_AUTO; 
+			case 0x4: return STATUS_WINDVANE; 
+			case 0x8: return STATUS_TRACK;
+			default: throw new UnsupportedOperationException();
+			}
+		}
+	}
+	
+	public enum ERROR {
+		ERROR_NONE(0x0),
+		ERROR_GENERIC(0x2),
+		ERROR_OFF_COURSE(0x4),
+		ERROR_WIND_SHIFT(0x8);		
+
+		int value;
+		ERROR(int v) {value = v;}
+		static ERROR fromValue(int i) {
+			switch (i) {
+			case 0x0: return ERROR_NONE; 
+			case 0x2: return ERROR_GENERIC; 
+			case 0x4: return ERROR.ERROR_OFF_COURSE; 
+			case 0x8: return ERROR_WIND_SHIFT;
+			default: throw new UnsupportedOperationException();
+			}
+		}
 	}
 	
 	private int heading;
 	private int rudder;
 	private int autoDeg;
-	private boolean auto;
-	private boolean wind;
-	private boolean track;
-	private boolean err_off_course;
-	private boolean err_wind_shift;
+	private int status; 
+	private int error;
 	private TURN turning;
+	private String sentence;
+	
+	public Stalk84(int heading, int headingAuto, int rudder, STATUS status, ERROR error, TURN turn) {
+		this.heading = heading;
+		this.autoDeg = headingAuto;
+		this.rudder = rudder;
+		this.error = error.value;
+		this.status = status.value;
+		this.turning = turn;
+		calcSentence();
+	}
+	
+	private void calcSentence() {
+		//U6  VW  XY 0Z 0M RR SS TT
+		
+		int rr = rudder & 0xFF;
+		int ss = 0x2;
+		int tt = 0x6;
+		int m = error;
+		int z = status;
+		
+		int vH = (autoDeg/90)*4;
+		int xy = (autoDeg % 90)*2;
+		
+		int uL = (heading/90);
+		int vwL = (heading%90)/2;
+		
+		int vw = (vwL | (vH * 16)) & 0xFF;
+		int u = uL + (0x8) * turning.value;
 
+		String res = "$STALK,84";
+		res += "," + Integer.toHexString(u) + "6";
+		res += "," + String.format("%02x", vw);
+		res += "," + String.format("%02x", xy);
+		res += "," + "4" + Integer.toHexString(z);
+		res += "," + "0" + Integer.toHexString(m);
+		res += "," + String.format("%02x", rr);
+		res += "," + String.format("%02x", ss);
+		res += "," + String.format("%02x", tt);
+		res = res.toUpperCase();	
+		
+		sentence = res + "*" + Checksum.calculate(res);
+	}
+
+	public static Stalk84 parse(String sentence) {
+		STALKSentence s = (STALKSentence) SentenceFactory.getInstance().createParser(sentence);
+		return new Stalk84(s);
+	}
+	
 	public Stalk84(STALKSentence s) {
 		if ("84".equals(s.getCommand())) {
 			String[] data = new String[9];
 			data[0] = "84";
 			for (int i=0; i<s.getParameters().length; i++) data[i+1] = s.getParameters()[i];
 			calc(data);
+			sentence = s.toSentence();
 		} else {
 			throw new RuntimeException("Type is not 84");
 		}
@@ -70,7 +159,12 @@ public class Stalk84 {
 	
 	public Stalk84(String...d) {
 		String[] data = new String[9];
-		for (int i=0; i<d.length; i++) data[i] = d[i];
+		sentence = "$STALK,";
+		for (int i=0; i<d.length; i++) {
+			data[i] = d[i];
+			sentence += "," + d[i];
+		}
+		
 		if (!data[0].equals("84")) throw new RuntimeException("Type is not 84");
 		calc(data);
 	}
@@ -84,23 +178,23 @@ public class Stalk84 {
 	}
 
 	public boolean isAuto() {
-		return auto;
+		return (status & STATUS.STATUS_AUTO.value)==STATUS.STATUS_AUTO.value;
 	}
 
 	public boolean isWind() {
-		return wind;
+		return (status & STATUS.STATUS_WINDVANE.value)==STATUS.STATUS_WINDVANE.value;
 	}
 
 	public boolean isTrack() {
-		return track;
+		return (status & STATUS.STATUS_TRACK.value)==STATUS.STATUS_TRACK.value;
 	}
 
 	public boolean isErr_off_course() {
-		return err_off_course;
+		return (error & ERROR.ERROR_OFF_COURSE.value)==ERROR.ERROR_OFF_COURSE.value;
 	}
 
 	public boolean isErr_wind_shift() {
-		return err_wind_shift;
+		return (error & ERROR.ERROR_WIND_SHIFT.value)==ERROR.ERROR_WIND_SHIFT.value;
 	}
 
 	public int getAutoDeg() {
@@ -111,7 +205,17 @@ public class Stalk84 {
 		return turning;
 	}
 	
+	public STATUS getStatus() {
+		return STATUS.fromValue(status);
+	}
 	
+	public ERROR getError() {
+		return ERROR.fromValue(error);
+	}
+	
+	public String getSTALKSentence() {
+		return sentence;
+	}
 	
 	private void calc(String[] data) {
 		byte u = (byte)Integer.parseInt(data[1].substring(0, 1), 16);
@@ -123,31 +227,29 @@ public class Stalk84 {
 		byte m = (byte)Integer.parseInt(data[5].substring(1, 2), 16);
 		byte rr = (byte)Integer.parseInt(data[6], 16);
 
-		auto = (z & (byte)0x02)==2;
-		wind = (z & (byte)0x04)==4;
-		track = (z & (byte)0x08)==8;
-		err_off_course = (m & (byte)0x04)==4;
-		err_wind_shift = (m & (byte)0x08)==8;
+		status = z & 0xF;
+		error = m & 0xF;
+
 		rudder = rr;
 		
-		if (auto) {
+		if (isAuto()) {
 			autoDeg = xy/2 + ((v & 0xC) >> 2) * 90;
 		}
 		heading = (u & 0x3) * 90 + (vw & 0x3F)* 2 + ( ((u & 0xC) != 0) ? ( ((u & 0xC) == 0xC) ? 2 : 1): 0); 
 
         //Most significant bit of U = 1: Increasing heading, Ship turns right 
         //Most significant bit of U = 0: Decreasing heading, Ship turns left
-		turning = ((u & 0x8) != 0) ? TURN.PORT : TURN.STARBOARD;
+		turning = ((u & 0x8) == 0) ? TURN.PORT : TURN.STARBOARD;
 	}
 
 	public void dump(OutputStream p) throws IOException {
 		String r = "---------------------\r\n";
 		r += "Head  " + heading + "\r\n";
-		r += "Auto  " + auto + (auto?(" [" + autoDeg + "]"):"") + "\r\n";
-		r += "Wind  " + wind + "\r\n";
-		r += "Track " + track + "\r\n";
-		r += "Off Track  " + err_off_course + "\r\n";
-		r += "Wind Shift " + err_wind_shift + "\r\n";
+		r += "Auto  " + isAuto() + (isAuto()?(" [" + autoDeg + "]"):"") + "\r\n";
+		r += "Wind  " + isWind() + "\r\n";
+		r += "Track " + isTrack() + "\r\n";
+		r += "Off Track  " + isErr_off_course() + "\r\n";
+		r += "Wind Shift " + isErr_wind_shift() + "\r\n";
 		r += "Rudder " + rudder + "\r\n";
 		p.write(r.getBytes());
 	}
@@ -157,12 +259,13 @@ public class Stalk84 {
 		String r = "Stalk {84}";
 		r += " Head {" + heading + "}";
 		r += " Rudder {" + rudder + "}";
-		r += " Auto {" + auto + "}";
+		r += " Auto {" + isAuto() + "}";
 		r += " AutoDeg {" + autoDeg + "}";
-		r += " Wind {" + wind + "}";
-		r += " Track {" + track + "}";
-		r += " OffTrack {" + err_off_course + "}";
-		r += " WindShift {" + err_wind_shift + "}";
+		r += " Wind {" + isWind() + "}";
+		r += " Track {" + isTrack() + "}";
+		r += " OffTrack {" + isErr_off_course() + "}";
+		r += " WindShift {" + isErr_wind_shift() + "}";
+		r += " Sentence {" + sentence + "}";
 		return r;
 	}
 }
