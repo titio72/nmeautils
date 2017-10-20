@@ -114,12 +114,11 @@ public class Stalk84 {
 	
 	
 	private void calc(String[] data) {
-		byte u = (byte)Integer.parseInt(data[1].substring(0, 1), 16);
+		int u = Integer.parseInt(data[1].substring(0, 1), 16);
 		int v = Integer.parseInt(data[2].substring(0, 1), 16);
-		byte w = (byte)Integer.parseInt(data[2].substring(1, 2), 16);
-		byte vw = (byte)(v * 256 + w);
+		int vw = Integer.parseInt(data[2], 16);
 		int xy = Integer.parseInt(data[3], 16);
-		byte z = (byte)Integer.parseInt(data[4].substring(1, 2), 16);
+		int z = Integer.parseInt(data[4].substring(1, 2), 16);
 		byte m = (byte)Integer.parseInt(data[5].substring(1, 2), 16);
 		byte rr = (byte)Integer.parseInt(data[6], 16);
 
