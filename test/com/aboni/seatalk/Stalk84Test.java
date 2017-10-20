@@ -54,7 +54,7 @@ public class Stalk84Test {
 		for (String s: stream) {
 			STALKSentence nmea = (STALKSentence)SentenceFactory.getInstance().createParser(s);
 			Stalk84 s84 = new Stalk84(nmea);
-			System.out.format("%d %d %b %s%n", s84.getHeading(), s84.getAutoDeg(), s84.isAuto(), s84.getTurning().toString());
+			//System.out.format("%d %d %b %s%n", s84.getHeading(), s84.getAutoDeg(), s84.isAuto(), s84.getTurning().toString());
 		}
 	}
 	
@@ -86,5 +86,32 @@ public class Stalk84Test {
 		assertFalse(ss.isErr_off_course());
 		assertEquals(3, ss.getRudder());
 	}
+	
+	@Test
+	public void test2() throws IOException {
+		STALKSentence s = (STALKSentence)SentenceFactory.getInstance().createParser("$STALK,84,36,E6,98,42,00,03,02,06*17");
+		Stalk84 ss = new Stalk84(s);
+		ss.dump(System.out);
+		assertEquals(346, ss.getHeading());
+		assertEquals(346, ss.getAutoDeg());
+		assertTrue(ss.isAuto());
+		assertFalse(ss.isWind());
+		assertFalse(ss.isTrack());
+		assertFalse(ss.isErr_off_course());
+		assertEquals(3, ss.getRudder());
+	}
 
+	@Test
+	public void test3() {
+		//84,36,E6,98,42,00,03,02,06
+		//84 U6 VW XY 0Z 0M RR SS TT
+		int u = 3;
+		int vw = 0xE6;
+		int k = (u & 0x3)* 90 + (vw & 0x3F)* 2 + (((u & 0xC)!=0) ? (((u & 0xC) == 0xC) ? 2 : 1): 0);
+		System.out.println(k);
+		
+		
+		/// (U & 0x3)* 90 + (VW & 0x3F)* 2 + (U & 0xC ? (U & 0xC == 0xC ? 2 : 1): 0) 
+	}
+	
 }
