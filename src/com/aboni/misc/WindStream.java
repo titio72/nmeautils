@@ -15,16 +15,21 @@ import net.sf.marineapi.nmea.sentence.VHWSentence;
 
 public class WindStream {
 
+	public class Conf {
+		boolean useVWR = false;
+		boolean useCOG = false;
+		boolean calcTrue = false;
+	}
+	
 	private NMEATrueWind windCalc;
 	
 	private long lastMWV_T;
 	private long lastMWD;
 	private long lastMWV_R;
 	private long lastVHW;
-
+	
 	private long lastSentMWD;
 	
-	//private static final long VALID_THRESHOLD = 2000;
 	private static final long CALC_THRESHOLD = 2000;
 	private static final long SEND_THROTTLING = 900;
 	
