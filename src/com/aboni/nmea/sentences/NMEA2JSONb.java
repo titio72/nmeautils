@@ -108,6 +108,9 @@ public class NMEA2JSONb {
 			json.put("unit", _s.getSpeedUnit().toString());
 		} */else if (s.getSentenceId().equals(SentenceId.MWD.toString())) { /* OK */
 			MWDSentence _s = (MWDSentence)s;
+			try {
+				json.put("true_angle", _s.getTrueWindDirection());
+			} catch (Exception e) {}
 			json.put("mag_angle", _s.getMagneticWindDirection());
 			json.put("speed", _s.getWindSpeed()/0.51444444444 );
 			//json.put("speed", _s.getWindSpeedKnots());
