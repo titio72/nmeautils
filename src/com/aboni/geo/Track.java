@@ -85,22 +85,20 @@ public class Track {
 	 */
 	double crossTrackError(Position pCurrent, Position pStart, Position pEnd) {
 		
-		//double rr = Geodesic.WGS84.MajorRadius();
-		
-	    double R = 6371000;
+	    double R = 6371000; // average earth radius - should be ok at our latitudes
 
 	    Course cSE = new Course(pStart, pEnd);
 	    //Course cPE = new Course(pCurrent, pEnd);
 	    Course cSP = new Course(pStart, pCurrent);
 	    
-	    double δ13 = cSP.getDistance() / R;
+	    double a13 = cSP.getDistance() / R;
 	    
-	    double θ13 = Math.toRadians(cSP.getCOG()); //pathStart.bearingTo(this).toRadians();
-	    double θ12 = Math.toRadians(cSE.getCOG()); //pathStart.bearingTo(pathEnd).toRadians();
+	    double b13 = Math.toRadians(cSP.getCOG()); //pathStart.bearingTo(this).toRadians();
+	    double b12 = Math.toRadians(cSE.getCOG()); //pathStart.bearingTo(pathEnd).toRadians();
 
-	    double δxt = Math.asin(Math.sin(δ13) * Math.sin(θ13-θ12));
+	    double axt = Math.asin(Math.sin(a13) * Math.sin(b13-b12));
 
-	    return δxt * R;
+	    return axt * R;
 	};
 
 	
