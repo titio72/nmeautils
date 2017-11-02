@@ -58,4 +58,11 @@ public class UtilsTest {
 		assertEquals(2.0, Utils.getNormal180(-1.0, 2.0), 0.00001);
 		assertEquals(392.0, Utils.getNormal180(359.0, 32.0), 0.00001);
 	}
+	
+	@Test
+	public void testTack() {
+		assertEquals(270, Utils.tack(90, -90), 0.001);
+		assertEquals(315, Utils.tack(135, -90), 0.001);
+		assertEquals(225, Utils.tack(135, 45), 0.001);
+	}
 }

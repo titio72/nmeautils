@@ -115,4 +115,17 @@ public class Utils {
 		GeodesicData d = Geodesic.WGS84.Direct(p0.getLatitude(), p0.getLongitude(), heading, dist * 1852);
 		return new Position(d.lat2, d.lon2);
 	}
+	
+	public static double tack(double heading, double trueWind) {
+		/*double wDir = heading + trueWind;
+		double relHeading = heading - wDir;
+		double tackRelHeading = -Utils.normalizeDegrees180_180(relHeading);
+		double tack = tackRelHeading + wDir;*/
+		
+		double tack = heading + 2 * trueWind;
+		
+		return Utils.normalizeDegrees0_360(tack);
+		
+		
+	}
 }
