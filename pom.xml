@@ -46,12 +46,13 @@
 	    <dependency>
   		    <groupId>net.sf.geographiclib</groupId>
   		    <artifactId>GeographicLib-Java</artifactId>
-  		    <version>1.46</version>
+  		    <version>1.49</version>
 	   </dependency>
 	   <dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20160810</version>
+			<version>20171018</version>
+			<scope>optional</scope>
 		</dependency>
 	</dependencies>
 	<scm>
