@@ -63,7 +63,7 @@ public class NMEA2JSONb {
 			Time t = _s.getTime();
 			Date d = _s.getDate();
 			Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-			c.set(d.getYear(), d.getMonth(), d.getDay(), t.getHour(), t.getMinutes(), (int)t.getSeconds());
+			c.set(d.getYear(), d.getMonth()-1, d.getDay(), t.getHour(), t.getMinutes(), (int)t.getSeconds());
 			double dec_lon = (_s.getPosition().getLongitudeHemisphere()==CompassPoint.WEST)?-_s.getPosition().getLongitude():_s.getPosition().getLongitude();
 			double dec_lat = (_s.getPosition().getLatitudeHemisphere()==CompassPoint.SOUTH)?-_s.getPosition().getLatitude():_s.getPosition().getLatitude();
 			json.put("UTC", fISO.format(c.getTime()));
