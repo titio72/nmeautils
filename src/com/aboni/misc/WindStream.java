@@ -133,6 +133,8 @@ public class WindStream {
 			if (conf.useCOG) {
 				RMCSentence rmc = (RMCSentence)s;
 				VHWSentence vhw = (VHWSentence)SentenceFactory.getInstance().createParser(tid,  SentenceId.VHW);
+				vhw.setHeading(rmc.getCourse());
+				vhw.setSpeedKnots(rmc.getSpeed());
 				windCalc.setSpeed(vhw, time);
 				lastVHW = time;
 				updateStats();
