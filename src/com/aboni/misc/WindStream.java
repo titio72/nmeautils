@@ -22,9 +22,9 @@ import net.sf.marineapi.nmea.util.Units;
 public class WindStream {
 
 	public static class Conf {
-		boolean useVWR = false;
-		boolean useCOG = false;
-		boolean forceCalcTrue = false;
+		public boolean useVWR = false;
+		public boolean useCOG = false;
+		public boolean forceCalcTrue = false;
 	}
 	
 	private NMEATrueWind windCalc;
@@ -60,6 +60,14 @@ public class WindStream {
 		dtMWV_VHW = new SpeedMovingAverage(10*1000);
 		dtVHW_MWV = new SpeedMovingAverage(10*1000);
 	}
+	
+	public void setConf(Conf conf) {
+		this.conf = conf;
+	}
+	
+	public Conf getConf() {
+		return conf;
+	}
 
 	private boolean shallCalcMWV_T(long now) {
 		if (lastMWV_T==0) lastMWV_T = now;
@@ -76,44 +84,44 @@ public class WindStream {
 	}
 	
 	public void onSentence(Sentence s, long time) {
-		if (s.getSentenceId().equals(SentenceId.VWR.name()) && conf.useVWR) {
-			VWRSentence vwr = (VWRSentence) s;
-			MWVSentence mwv_r = (MWVSentence) SentenceFactory.getInstance().createParser(tid,  SentenceId.MWV);
-			mwv_r.setAngle(vwr.getSide()==Side.STARBOARD?vwr.getAngle():(360-vwr.getAngle()));
-			mwv_r.setSpeed(vwr.getSpeed());
-			mwv_r.setStatus(DataStatus.ACTIVE);
-			mwv_r.setSpeedUnit(Units.KNOT);
-			mwv_r.setTrue(false);
-			lastMWV_R = time;
-			updateStats();
-			onProcSentence(mwv_r, time);
-			windCalc.setWind(mwv_r, time);
-			if (shallCalcMWV_T(time) && "MWV".equals(updateTrueWindOnSentence)) {
+		if (s.getSentenceId().equals(SentenceId.VWR.name())) {
+			if (conf.useVWR) {
+				VWRSentence vwr = (VWRSentence) s;
+				MWVSentence mwv_r = (MWVSentence) SentenceFactory.getInstance().createParser(tid,  SentenceId.MWV);
+				mwv_r.setAngle(vwr.getSide()==Side.STARBOARD?vwr.getAngle():(360-vwr.getAngle()));
+				mwv_r.setSpeed(vwr.getSpeed());
+				mwv_r.setStatus(DataStatus.ACTIVE);
+				mwv_r.setSpeedUnit(Units.KNOT);
+				mwv_r.setTrue(false);
+				lastMWV_R = time;
+				updateStats();
+				onProcSentence(mwv_r, time);
+				windCalc.setWind(mwv_r, time);
 				windCalc.calcMWVSentence(time);
 				onProcSentence(windCalc.getTrueWind(), time);
-			}
-			if (shallCalcMWD(time)) {
 				windCalc.calcMWDSentence(time);
 				onProcSentence(windCalc.getWind(), time);
 			}
-		} else if (s.getSentenceId().equals(SentenceId.MWV.name()) && !conf.useVWR) {
-			MWVSentence mwv = (MWVSentence)s;
-			if (!(mwv.isTrue() && conf.forceCalcTrue)) {
-				if (mwv.isTrue()) {
-					lastMWV_T = time;
-				} else {
-					lastMWV_R = time;
-					updateStats();
-				}
-				onProcSentence(s, time);
-				windCalc.setWind(mwv, time);
-				if (shallCalcMWV_T(time) && "MWV".equals(updateTrueWindOnSentence)) {
-					windCalc.calcMWVSentence(time);
-					onProcSentence(windCalc.getTrueWind(), time);
-				}
-				if (shallCalcMWD(time)) {
-					windCalc.calcMWDSentence(time);
-					onProcSentence(windCalc.getWind(), time);
+		} else if (s.getSentenceId().equals(SentenceId.MWV.name())) {
+			if (!conf.useVWR) {
+				MWVSentence mwv = (MWVSentence)s;
+				if (!(mwv.isTrue() && (conf.forceCalcTrue || conf.useCOG))) {
+					if (mwv.isTrue()) {
+						lastMWV_T = time;
+					} else {
+						lastMWV_R = time;
+						updateStats();
+					}
+					onProcSentence(s, time);
+					windCalc.setWind(mwv, time);
+					if (shallCalcMWV_T(time)) {
+						windCalc.calcMWVSentence(time);
+						onProcSentence(windCalc.getTrueWind(), time);
+					}
+					if (shallCalcMWD(time)) {
+						windCalc.calcMWDSentence(time);
+						onProcSentence(windCalc.getWind(), time);
+					}
 				}
 			}
 		} else if (s.getSentenceId().equals(SentenceId.MWD.name())) {
@@ -158,8 +166,7 @@ public class WindStream {
 		if (dtMWV_VHW.getAvg()<dtMWV_VHW.getAvg()) {
 			updateTrueWindOnSentence = "MWV";
 		} else {
-			// disable it for now
-			//updateTrueWindOnSentence = "VHW";
+			updateTrueWindOnSentence = "VHW";
 		}
 	}
 
