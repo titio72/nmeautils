@@ -63,7 +63,7 @@ public class NMEA2JSONb {
 			Time t = _s.getTime();
 			Date d = _s.getDate();
 			Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-			c.set(d.getYear(), d.getMonth()-1, d.getDay(), t.getHour(), t.getMinutes(), (int)t.getSeconds());
+			c.set(d.getYear(), d.getMonth() - 1, d.getDay(), t.getHour(), t.getMinutes(), (int)t.getSeconds());
 			double dec_lon = (_s.getPosition().getLongitudeHemisphere()==CompassPoint.WEST)?-_s.getPosition().getLongitude():_s.getPosition().getLongitude();
 			double dec_lat = (_s.getPosition().getLatitudeHemisphere()==CompassPoint.SOUTH)?-_s.getPosition().getLatitude():_s.getPosition().getLatitude();
 			json.put("UTC", fISO.format(c.getTime()));
@@ -100,13 +100,7 @@ public class NMEA2JSONb {
 			json.put("angle", _s.getAngle());
 			json.put("speed", _s.getSpeed());
 			json.put("unit", _s.getSpeedUnit().toString());
-		} /*else if (s.getSentenceId().equals(SentenceId.MWV.toString())) { 
-			MWVSentence _s = (MWVSentence)s;
-			json.put("angle", _s.getAngle());
-			json.put("reference", (_s.isTrue()?"T":"R"));
-			json.put("speed", _s.getSpeed());
-			json.put("unit", _s.getSpeedUnit().toString());
-		} */else if (s.getSentenceId().equals(SentenceId.MWD.toString())) { /* OK */
+		} else if (s.getSentenceId().equals(SentenceId.MWD.toString())) { /* OK */
 			MWDSentence _s = (MWDSentence)s;
 			try {
 				json.put("true_angle", _s.getTrueWindDirection());
