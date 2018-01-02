@@ -4,6 +4,8 @@ import com.aboni.geo.TrueWind;
 
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.HDGSentence;
+import net.sf.marineapi.nmea.sentence.HDMSentence;
+import net.sf.marineapi.nmea.sentence.HeadingSentence;
 import net.sf.marineapi.nmea.sentence.MWDSentence;
 import net.sf.marineapi.nmea.sentence.MWVSentence;
 import net.sf.marineapi.nmea.sentence.SentenceId;
@@ -13,34 +15,8 @@ import net.sf.marineapi.nmea.util.Units;
 
 public class NMEATrueWind {
 	
-	private class Event<C> {
-		C event;
-		long timestamp;
-		
-		Event(C sentence, long t) {
-			timestamp = t;
-			event = sentence;
-		}
-		
-		long getAge(long now) {
-			if (event!=null) {
-				return now - timestamp;
-			} else {
-				return -1;
-			}
-		}
-		/*
-		long getElapsed(long now) {
-			return now - timestamp;
-		}
-		*/
-		void setEvent(C e, long time) {
-			event = e;
-			timestamp = time;
-		}
-	}
-	
-	private Event<HDGSentence> eHeading = new Event<HDGSentence>(null, 0);
+	private Event<HDMSentence> eHeadingM = new Event<HDMSentence>(null, 0);
+	private Event<HDGSentence> eHeadingG = new Event<HDGSentence>(null, 0);
 	private Event<VHWSentence> eSpeed = new Event<VHWSentence>(null, 0);
 	private Event<MWVSentence> eAWind = new Event<MWVSentence>(null, 0);
 	private Event<MWVSentence> eTWind = new Event<MWVSentence>(null, 0);
@@ -53,20 +29,34 @@ public class NMEATrueWind {
 	}
 	
 	public void calcMWDSentence(long threshold, long time) {
-		if (Math.abs(eHeading.timestamp - eTWind.timestamp)<threshold/*ms*/) {
-			calcMWDSentence(time);
+		if (Math.abs(eHeadingG.timestamp - eTWind.timestamp)<threshold/*ms*/) {
+			calcMWDSentence(time, eHeadingG.event);
+		} else if (Math.abs(eHeadingM.timestamp - eTWind.timestamp)<threshold/*ms*/) {
+			calcMWDSentence(time, eHeadingM.event);
+		} else if (Math.abs(eSpeed.timestamp - eTWind.timestamp)<threshold/*ms*/) {
+			calcMWDSentence(time, eSpeed.event);
+		}
+	}
+
+	public void calcMWDSentence(long time) {
+		if (eHeadingG!=null && eHeadingG.event!=null) {
+			calcMWDSentence(time, eHeadingG.event);
+		} else if (eHeadingM!=null && eHeadingM.event!=null) {
+			calcMWDSentence(time, eHeadingM.event);
+		} else if (eSpeed!=null && eSpeed.event!=null) {
+			calcMWDSentence(time, eSpeed.event);
 		}
 	}
 	
-	public void calcMWDSentence(long time) {
-		if (eHeading.event!=null && eTWind.event!=null) {
+	private void calcMWDSentence(long time, HeadingSentence hs) {
+		if (hs!=null && eTWind.event!=null) {
 			MWDSentence s = (MWDSentence) SentenceFactory.getInstance().createParser(id, SentenceId.MWD);
 
-			double td = getTrueHeading(eHeading.event) + eTWind.event.getAngle();
+			double td = getTrueHeading(hs) + eTWind.event.getAngle();
 			td = Utils.normalizeDegrees0_360(td);
 			s.setTrueWindDirection(td);
 
-			double md = getMagHeading(eHeading.event) + eTWind.event.getAngle();
+			double md = getMagHeading(hs) + eTWind.event.getAngle();
 			md = Utils.normalizeDegrees0_360(md);
 			s.setMagneticWindDirection(md);
 
@@ -77,16 +67,16 @@ public class NMEATrueWind {
 		}
 	}
 
-    private static double getTrueHeading(HDGSentence h) {
+    private static double getTrueHeading(HeadingSentence h) {
 		double dev = 0.0, var = 0.0;
-		try { dev = h.getDeviation(); } catch (Exception e) {}
-		try { var = h.getVariation(); } catch (Exception e) {}
+		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception e) {}
+		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getVariation(); } catch (Exception e) {}
 		return h.getHeading() + var + dev;
     }
 	
-    private static double getMagHeading(HDGSentence h) {
+    private static double getMagHeading(HeadingSentence h) {
 		double dev = 0.0;
-		try { dev = h.getDeviation(); } catch (Exception e) {}
+		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception e) {}
 		return h.getHeading() + dev;
     }
 	
@@ -123,15 +113,19 @@ public class NMEATrueWind {
 	 * @param time	The time of the heading sample
 	 */
 	public void setHeading(HDGSentence s, long time) {
-		eHeading.setEvent(s, time);
+		eHeadingG.setEvent(s, time);
+	}
+	
+	public void setHeading(HDMSentence s, long time) {
+		eHeadingM.setEvent(s, time);
 	}
 	
 	public HDGSentence getHeading() {
-		return eHeading.event;
+		return eHeadingG.event;
 	}
 
 	public long getHeadingAge(long now) {
-		return eHeading.getAge(now);
+		return eHeadingG.getAge(now);
 	}
 	
 	/**********************************************************/
