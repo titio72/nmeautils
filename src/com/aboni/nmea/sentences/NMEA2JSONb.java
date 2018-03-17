@@ -76,8 +76,12 @@ public class NMEA2JSONb {
 		} else if (s.getSentenceId().equals(SentenceId.DPT.toString())) {
 			// depth
 			DPTSentence _s = (DPTSentence)s;
-			json.put("depth", _s.getDepth());
-			try { json.put("offset", _s.getOffset()); } catch (Exception e) { json.put("offset", 0.0); }
+			double d = _s.getDepth();
+			double o = 0.0;
+			try { o = _s.getOffset(); } catch (Exception e) {}
+			json.put("raw_depth", d);
+			json.put("offset", o);
+			json.put("depth", d + o);
 		} else if (s.getSentenceId().equals(SentenceId.DBT.toString())) {
 			// depth
 			DBTSentence _s = (DBTSentence)s;
