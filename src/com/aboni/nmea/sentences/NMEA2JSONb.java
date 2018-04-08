@@ -20,6 +20,7 @@ import net.sf.marineapi.nmea.sentence.DPTSentence;
 import net.sf.marineapi.nmea.sentence.HDGSentence;
 import net.sf.marineapi.nmea.sentence.HDMSentence;
 import net.sf.marineapi.nmea.sentence.HDTSentence;
+import net.sf.marineapi.nmea.sentence.MDASentence;
 import net.sf.marineapi.nmea.sentence.MMBSentence;
 import net.sf.marineapi.nmea.sentence.MTASentence;
 import net.sf.marineapi.nmea.sentence.MTWSentence;
@@ -43,7 +44,7 @@ public class NMEA2JSONb {
 	
     public NMEA2JSONb() {
 		TimeZone tz = TimeZone.getTimeZone("UTC");
-		fISO = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ");
+		fISO = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 		fISO.setTimeZone(tz);
 	}
     
@@ -145,6 +146,12 @@ public class NMEA2JSONb {
             json.put("depth", _s.getDepth());
             try { json.put("maxDepth", _s.getMaxDepth1h()); } catch (Exception e) {}
             try { json.put("minDepth", _s.getMinDepth1h()); } catch (Exception e) {}
+        } else if (s.getSentenceId().equals("MDA")) {
+        	MDASentence _s = (MDASentence) s;
+        	try { json.put("airTemp", _s.getAirTemperature()); } catch (Exception e) {}
+        	try { json.put("waterTemp", _s.getWaterTemperature()); } catch (Exception e) {}
+        	try { json.put("pressure", _s.getPrimaryBarometricPressure()); } catch (Exception e) {}
+        	try { json.put("humidity", _s.getRelativeHumidity()); } catch (Exception e) {}
         } else if (s.getSentenceId().equals("XXP")) {
 		    XXXPSentence _s = (XXXPSentence)s;
             try { json.put("pressure", 		_s.getPressure());	 	} catch (Exception e) {}
