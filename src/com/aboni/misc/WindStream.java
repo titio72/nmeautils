@@ -24,6 +24,8 @@ public class WindStream {
 	public static class Conf {
 		public boolean useVWR = false;
 		public boolean forceCalcTrue = false;
+		public boolean smoothWind = false;
+		public double windSmoothingFactor = 0.5;
 	}
 	
 	private NMEATrueWind windCalc;
@@ -33,7 +35,7 @@ public class WindStream {
 	
 	private long lastSentMWD;
 	
-	private static final long CALC_THRESHOLD = 2000;
+	private static final long CALC_THRESHOLD = 5000;
 	private static final long SEND_THROTTLING = 900;
 
 	private Conf conf;
@@ -76,55 +78,19 @@ public class WindStream {
 	public void onSentence(Sentence s, long time) {
 		if (s.getSentenceId().equals(SentenceId.VWR.name())) {
 			if (conf.useVWR) {
-				VWRSentence vwr = (VWRSentence) s;
-				MWVSentence mwv_r = (MWVSentence) SentenceFactory.getInstance().createParser(tid,  SentenceId.MWV);
-				mwv_r.setAngle(vwr.getSide()==Side.STARBOARD?vwr.getAngle():(360-vwr.getAngle()));
-				mwv_r.setSpeed(vwr.getSpeed());
-				mwv_r.setStatus(DataStatus.ACTIVE);
-				mwv_r.setSpeedUnit(Units.KNOT);
-				mwv_r.setTrue(false);
-				onProcSentence(mwv_r, time);
-				windCalc.setWind(mwv_r, time);
-				if (shallCalcMWV_T(time)) {
-					windCalc.calcMWVSentence(time);
-					onProcSentence(windCalc.getTrueWind(), time);
-				}
-				if (shallCalcMWD(time)) {
-					windCalc.calcMWDSentence(time);
-					onProcSentence(windCalc.getWind(), time);
-				}
+				handleVWR(s, time);
 			}
 		} else if (s.getSentenceId().equals(SentenceId.MWV.name())) {
 			if (!conf.useVWR) {
 				MWVSentence mwv = (MWVSentence)s;
 				if (mwv.isTrue())  {
-					if (!conf.forceCalcTrue) {
-						lastMWV_T = time;
-						windCalc.setWind(mwv, time);
-						onProcSentence(s, time);
-						if (shallCalcMWD(time)) {
-							windCalc.calcMWDSentence(time);
-							onProcSentence(windCalc.getWind(), time);
-						}
-					}
+					handleTrueMWV(time, mwv);
 				} else {
-					onProcSentence(s, time);
-					windCalc.setWind(mwv, time);
-					if (shallCalcMWV_T(time)) {
-						windCalc.calcMWVSentence(time);
-						onProcSentence(windCalc.getTrueWind(), time);
-						if (shallCalcMWD(time)) {
-							windCalc.calcMWDSentence(time);
-							onProcSentence(windCalc.getWind(), time);
-						}
-					}
+					handleAppMWV(time, mwv);
 				}
 			}
 		} else if (s.getSentenceId().equals(SentenceId.MWD.name())) {
-			MWDSentence mwd = (MWDSentence)s;
-			lastMWD = time;
-			windCalc.setWind(mwd, time);
-			onProcSentence(s, time);
+			handleMWD(s, time);
 		} else if (s.getSentenceId().equals(SentenceId.VHW.name())) {
 			VHWSentence vhw = (VHWSentence)s;
 			windCalc.setSpeed(vhw, time);
@@ -139,6 +105,94 @@ public class WindStream {
 			onProcSentence(s, time);
 		} else {
 			onProcSentence(s, time);
+		}
+	}
+
+	private void handleMWD(Sentence s, long time) {
+		MWDSentence mwd = (MWDSentence)s;
+		lastMWD = time;
+
+		double wSpeed = mwd.getWindSpeedKnots();
+		if (conf.smoothWind) {
+			lastMWDSpeedValue = LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWDSpeedValue, wSpeed);
+			wSpeed = lastMWDSpeedValue;
+		}
+		mwd.setWindSpeedKnots(wSpeed);
+		
+		windCalc.setWind(mwd, time);
+		onProcSentence(s, time);
+	}
+
+	private void handleAppMWV(long time, MWVSentence mwv) {
+		onProcSentence(mwv, time);
+		
+		double wSpeed = mwv.getSpeed();
+		if (conf.smoothWind) {
+			lastMWV_RSpeedValue = LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWV_RSpeedValue, wSpeed);
+			wSpeed = lastMWV_RSpeedValue;
+		}
+		mwv.setSpeed(wSpeed);
+		
+		windCalc.setWind(mwv, time);
+		if (shallCalcMWV_T(time)) {
+			windCalc.calcMWVSentence(time);
+			onProcSentence(windCalc.getTrueWind(), time);
+			if (shallCalcMWD(time)) {
+				windCalc.calcMWDSentence(time);
+				onProcSentence(windCalc.getWind(), time);
+			}
+		}
+	}
+
+	private void handleTrueMWV(long time, MWVSentence mwv) {
+		if (!conf.forceCalcTrue) {
+			lastMWV_T = time;
+			
+			double wSpeed = mwv.getSpeed();
+			if (conf.smoothWind) {
+				lastMWV_TSpeedValue = LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWV_TSpeedValue, wSpeed);
+				wSpeed = lastMWV_TSpeedValue;
+			}
+			mwv.setSpeed(wSpeed);
+			
+			windCalc.setWind(mwv, time);
+			onProcSentence(mwv, time);
+			if (shallCalcMWD(time)) {
+				windCalc.calcMWDSentence(time);
+				onProcSentence(windCalc.getWind(), time);
+			}
+		}
+	}
+
+	private double lastMWV_RSpeedValue;
+	private double lastMWV_TSpeedValue;
+	private double lastMWDSpeedValue;
+	private double lastVWRSpeedValue;
+	
+	private void handleVWR(Sentence s, long time) {
+		VWRSentence vwr = (VWRSentence) s;
+		MWVSentence mwv_r = (MWVSentence) SentenceFactory.getInstance().createParser(tid,  SentenceId.MWV);
+		mwv_r.setAngle(vwr.getSide()==Side.STARBOARD?vwr.getAngle():(360-vwr.getAngle()));
+		
+		double wSpeed = vwr.getSpeed();
+		if (conf.smoothWind) {
+			lastVWRSpeedValue = LPFFilter.getLPFReading(conf.windSmoothingFactor, lastVWRSpeedValue, wSpeed);
+			wSpeed = lastVWRSpeedValue;
+		}
+		mwv_r.setSpeed(wSpeed);
+
+		mwv_r.setStatus(DataStatus.ACTIVE);
+		mwv_r.setSpeedUnit(Units.KNOT);
+		mwv_r.setTrue(false);
+		onProcSentence(mwv_r, time);
+		windCalc.setWind(mwv_r, time);
+		if (shallCalcMWV_T(time)) {
+			windCalc.calcMWVSentence(time);
+			onProcSentence(windCalc.getTrueWind(), time);
+		}
+		if (shallCalcMWD(time)) {
+			windCalc.calcMWDSentence(time);
+			onProcSentence(windCalc.getWind(), time);
 		}
 	}
 
