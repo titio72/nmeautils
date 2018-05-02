@@ -36,7 +36,7 @@ public class WindStream {
 	private long lastSentMWD;
 	
 	private static final long CALC_THRESHOLD = 5000;
-	private static final long SEND_THROTTLING = 900;
+	private static final long SEND_THROTTLING_MWD = 900;
 
 	private Conf conf;
 	private TalkerId tid;
@@ -68,7 +68,7 @@ public class WindStream {
 	
 	private boolean shallCalcMWD(long now) {
 		if (lastMWD==0) lastMWD = now;
-		return (now - lastMWD) > CALC_THRESHOLD && (now - lastSentMWD) > SEND_THROTTLING;
+		return (now - lastMWD) > CALC_THRESHOLD && (now - lastSentMWD) > SEND_THROTTLING_MWD;
 	}
 	
 	public void onSentence(Sentence s) {
@@ -127,11 +127,21 @@ public class WindStream {
 		onProcSentence(mwv, time);
 		
 		double wSpeed = mwv.getSpeed();
+		double wAngle = Utils.normalizeDegrees0_360(mwv.getAngle());
 		if (conf.smoothWind) {
-			lastMWV_RSpeedValue = LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWV_RSpeedValue, wSpeed);
+			if (lastMWV_RSpeedValue>=0) {
+				lastMWV_RSpeedValue = LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWV_RSpeedValue, wSpeed);
+				lastMWV_RAngleValue = Utils.getNormal(wAngle, lastMWV_RAngleValue);
+				lastMWV_RAngleValue = Utils.normalizeDegrees0_360(LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWV_RAngleValue, wAngle));
+			} else {
+				lastMWV_RSpeedValue = wSpeed;
+				lastMWV_RAngleValue = wAngle;
+			}
 			wSpeed = lastMWV_RSpeedValue;
+			wAngle = lastMWV_RAngleValue;
 		}
 		mwv.setSpeed(wSpeed);
+		mwv.setAngle(wAngle);
 		
 		windCalc.setWind(mwv, time);
 		if (shallCalcMWV_T(time)) {
@@ -149,11 +159,21 @@ public class WindStream {
 			lastMWV_T = time;
 			
 			double wSpeed = mwv.getSpeed();
+			double wAngle = Utils.normalizeDegrees0_360(mwv.getAngle());
 			if (conf.smoothWind) {
-				lastMWV_TSpeedValue = LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWV_TSpeedValue, wSpeed);
+				if (lastMWV_TSpeedValue>=0) { 
+					lastMWV_TSpeedValue = LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWV_TSpeedValue, wSpeed);
+					lastMWV_TAngleValue = Utils.getNormal(wAngle, lastMWV_TAngleValue);
+					lastMWV_TAngleValue = Utils.normalizeDegrees0_360(LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWV_TAngleValue, wAngle));
+				} else {
+					lastMWV_TSpeedValue = wSpeed;
+					lastMWV_TAngleValue = wAngle;
+				}
 				wSpeed = lastMWV_TSpeedValue;
+				wAngle = lastMWV_TAngleValue;
 			}
 			mwv.setSpeed(wSpeed);
+			mwv.setAngle(wAngle);
 			
 			windCalc.setWind(mwv, time);
 			onProcSentence(mwv, time);
@@ -164,10 +184,13 @@ public class WindStream {
 		}
 	}
 
-	private double lastMWV_RSpeedValue;
-	private double lastMWV_TSpeedValue;
+	private double lastMWV_RSpeedValue = -1; // init with an impossible value so to able to identify the first snapshot
+	private double lastMWV_TSpeedValue = -1; // init with an impossible value so to able to identify the first snapshot
 	private double lastMWDSpeedValue;
 	private double lastVWRSpeedValue;
+
+	private double lastMWV_RAngleValue;
+	private double lastMWV_TAngleValue;
 	
 	private void handleVWR(Sentence s, long time) {
 		VWRSentence vwr = (VWRSentence) s;

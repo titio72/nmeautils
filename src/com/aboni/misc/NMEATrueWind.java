@@ -96,7 +96,7 @@ public class NMEATrueWind {
 			double wdm = eAWind.event.getAngle();
 			double ws = eAWind.event.getSpeed();
 			TrueWind tw = new TrueWind(s, wdm, ws);
-			mwvt.setAngle(tw.getTrueWindDeg());
+			mwvt.setAngle(Utils.normalizeDegrees0_360(tw.getTrueWindDeg()));
 			mwvt.setSpeed(tw.getTrueWindSpeed());
 			mwvt.setSpeedUnit(Units.KNOT);
 			mwvt.setTrue(true);
