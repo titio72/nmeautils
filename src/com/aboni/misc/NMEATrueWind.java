@@ -83,6 +83,8 @@ public class NMEATrueWind {
 	public void calcMWVSentence(long threshold, long time) {
 		if (Math.abs(eSpeed.timestamp - eAWind.timestamp)<threshold/*ms*/) {
 			calcMWVSentence(time);
+		} else {
+			eTWind.setEvent(null, 0);
 		}
 	}
 	
