@@ -31,6 +31,7 @@ import net.sf.marineapi.nmea.sentence.STALKSentence;
 import net.sf.marineapi.nmea.sentence.Sentence;
 import net.sf.marineapi.nmea.sentence.SentenceId;
 import net.sf.marineapi.nmea.sentence.VHWSentence;
+import net.sf.marineapi.nmea.sentence.VLWSentence;
 import net.sf.marineapi.nmea.sentence.VTGSentence;
 import net.sf.marineapi.nmea.sentence.XDRSentence;
 import net.sf.marineapi.nmea.util.CompassPoint;
@@ -74,8 +75,14 @@ public class NMEA2JSONb {
 			json.put("longitude", formatLL(_s.getPosition().getLongitude(), _s.getPosition().getLongitudeHemisphere()) );
 			json.put("dec_longitude", dec_lon);
 			json.put("dec_latitude",  dec_lat);
+		} else if (s.getSentenceId().equals(SentenceId.VLW.toString())) {
+			VLWSentence _s = (VLWSentence)s;
+			double tot = _s.getTotal();
+			double trip = _s.getTrip();
+			json.put("total", tot);
+			json.put("trip", trip);
 		} else if (s.getSentenceId().equals(SentenceId.DPT.toString())) {
-			// depth
+				// depth
 			DPTSentence _s = (DPTSentence)s;
 			double d = _s.getDepth();
 			double o = 0.0;
@@ -116,9 +123,11 @@ public class NMEA2JSONb {
 			try { json.put("true_angle", _s.getTrueWindDirection()); } catch (Exception e) { json.put("true_angle", 0.0);}
 		} else if (s.getSentenceId().equals(SentenceId.VHW.toString())) { /* OK */
 			VHWSentence _s = (VHWSentence)s;
-			json.put("mag_angle", _s.getMagneticHeading());
-			json.put("speed", _s.getSpeedKnots());
-			try { json.put("true_angle", _s.getHeading()); } catch (Exception e) { json.put("true_angle", 0.0); }
+			try { json.put("mag_angle", _s.getMagneticHeading()); } catch (Exception e) {}
+			try { json.put("true_angle", _s.getHeading()); } catch (Exception e) {}
+			try { json.put("speed", _s.getSpeedKnots()); } catch (Exception e) {
+				try { json.put("speed", _s.getSpeedKmh() / 1.852); } catch (Exception ee) {}
+			}
 		} else if (s.getSentenceId().equals(SentenceId.MTW.toString())) {
 			MTWSentence _s = (MTWSentence)s;
 			json.put("temperature", _s.getTemperature());
