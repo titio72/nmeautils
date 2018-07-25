@@ -2,6 +2,7 @@ package com.aboni.misc;
 
 import com.aboni.geo.TrueWind;
 
+import net.sf.marineapi.nmea.parser.DataNotAvailableException;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.HDGSentence;
 import net.sf.marineapi.nmea.sentence.HDMSentence;
@@ -53,13 +54,17 @@ public class NMEATrueWind {
 			MWDSentence s = (MWDSentence) SentenceFactory.getInstance().createParser(id, SentenceId.MWD);
 
 			double td = getTrueHeading(hs) + eTWind.event.getAngle();
-			td = Utils.normalizeDegrees0_360(td);
-			s.setTrueWindDirection(td);
+			if (!Double.isNaN(td)) {
+				td = Utils.normalizeDegrees0_360(td);
+				s.setTrueWindDirection(td);
+			}
 
 			double md = getMagHeading(hs) + eTWind.event.getAngle();
-			md = Utils.normalizeDegrees0_360(md);
-			s.setMagneticWindDirection(md);
-
+			if (!Double.isNaN(md)) {
+				md = Utils.normalizeDegrees0_360(md);
+				s.setMagneticWindDirection(md);
+			}
+			
 			s.setWindSpeedKnots(eTWind.event.getSpeed());
 			s.setWindSpeed(eTWind.event.getSpeed()*0.51444444444);
 			
@@ -71,13 +76,25 @@ public class NMEATrueWind {
 		double dev = 0.0, var = 0.0;
 		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception e) {}
 		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getVariation(); } catch (Exception e) {}
-		return h.getHeading() + var + dev;
+		try {
+			return h.getHeading() + var + dev;
+		} catch (DataNotAvailableException e) {
+			return Double.NaN;
+		}
     }
 	
     private static double getMagHeading(HeadingSentence h) {
 		double dev = 0.0;
 		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception e) {}
-		return h.getHeading() + dev;
+		try {
+			if (h instanceof VHWSentence) {
+				return ((VHWSentence)h).getMagneticHeading();
+			} else {
+				return h.getHeading() + dev;
+			}
+		} catch (DataNotAvailableException e) {
+			return Double.NaN;
+		}
     }
 	
 	public void calcMWVSentence(long threshold, long time) {

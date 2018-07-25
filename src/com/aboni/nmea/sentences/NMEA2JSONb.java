@@ -117,10 +117,11 @@ public class NMEA2JSONb {
 			try {
 				json.put("true_angle", _s.getTrueWindDirection());
 			} catch (Exception e) {}
-			json.put("mag_angle", _s.getMagneticWindDirection());
+			try {
+				json.put("mag_angle", _s.getMagneticWindDirection());
+			} catch (Exception e) {}
 			json.put("speed", _s.getWindSpeed()/0.51444444444 );
 			//json.put("speed", _s.getWindSpeedKnots());
-			try { json.put("true_angle", _s.getTrueWindDirection()); } catch (Exception e) { json.put("true_angle", 0.0);}
 		} else if (s.getSentenceId().equals(SentenceId.VHW.toString())) { /* OK */
 			VHWSentence _s = (VHWSentence)s;
 			try { json.put("mag_angle", _s.getMagneticHeading()); } catch (Exception e) {}
