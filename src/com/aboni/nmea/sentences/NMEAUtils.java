@@ -5,10 +5,11 @@ import java.util.TimeZone;
 
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.DateSentence;
-import net.sf.marineapi.nmea.sentence.PositionSentence;
+import net.sf.marineapi.nmea.sentence.GLLSentence;
 import net.sf.marineapi.nmea.sentence.RMCSentence;
 import net.sf.marineapi.nmea.sentence.Sentence;
 import net.sf.marineapi.nmea.sentence.TimeSentence;
+import net.sf.marineapi.nmea.util.DataStatus;
 import net.sf.marineapi.nmea.util.Date;
 import net.sf.marineapi.nmea.util.Position;
 import net.sf.marineapi.nmea.util.Time;
@@ -17,13 +18,17 @@ public class NMEAUtils {
 
 	private NMEAUtils() {}
 
-
     public static Position getPosition(Sentence posSentence) {
-        if (posSentence instanceof PositionSentence) {
-            return ((PositionSentence)posSentence).getPosition();
-        } else { 
-            return null;
-        }
+    	if (posSentence.isValid()) {
+		    if (posSentence instanceof RMCSentence) {
+		    	RMCSentence rmc = (RMCSentence)posSentence;
+		        return rmc.getStatus()==DataStatus.ACTIVE?rmc.getPosition():null;
+		    } else  if (posSentence instanceof GLLSentence) {
+		        	GLLSentence gll = (GLLSentence)posSentence;
+		            return gll.getStatus()==DataStatus.ACTIVE?gll.getPosition():null;
+		    }
+    	}
+        return null;
     }
 
     public static Time getTime(Sentence timeSentence) {
