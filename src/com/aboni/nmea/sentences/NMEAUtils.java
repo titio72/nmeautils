@@ -6,6 +6,7 @@ import java.util.TimeZone;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.DateSentence;
 import net.sf.marineapi.nmea.sentence.GLLSentence;
+import net.sf.marineapi.nmea.sentence.PositionSentence;
 import net.sf.marineapi.nmea.sentence.RMCSentence;
 import net.sf.marineapi.nmea.sentence.Sentence;
 import net.sf.marineapi.nmea.sentence.TimeSentence;
@@ -18,17 +19,27 @@ public class NMEAUtils {
 
 	private NMEAUtils() {}
 
-    public static Position getPosition(Sentence posSentence) {
-    	if (posSentence.isValid()) {
-		    if (posSentence instanceof RMCSentence) {
-		    	RMCSentence rmc = (RMCSentence)posSentence;
-		        return rmc.getStatus()==DataStatus.ACTIVE?rmc.getPosition():null;
-		    } else  if (posSentence instanceof GLLSentence) {
-		        	GLLSentence gll = (GLLSentence)posSentence;
-		            return gll.getStatus()==DataStatus.ACTIVE?gll.getPosition():null;
-		    }
-    	}
+    public static Position getPosition(PositionSentence posSentence) {
+        if (posSentence.isValid()) {
+            if (posSentence instanceof RMCSentence) {
+                RMCSentence rmc = (RMCSentence)posSentence;
+                return rmc.getStatus()==DataStatus.ACTIVE?rmc.getPosition():null;
+            } else  if (posSentence instanceof GLLSentence) {
+                GLLSentence gll = (GLLSentence)posSentence;
+                return gll.getStatus()==DataStatus.ACTIVE?gll.getPosition():null;
+            } else {
+                return posSentence.getPosition();
+            }
+        }
         return null;
+    }
+
+    public static Position getPosition(RMCSentence rmc) {
+        if (rmc.isValid() && rmc.getStatus()==DataStatus.ACTIVE) {
+            return rmc.getPosition();
+        } else {
+            return null;
+        }
     }
 
     public static Time getTime(Sentence timeSentence) {
