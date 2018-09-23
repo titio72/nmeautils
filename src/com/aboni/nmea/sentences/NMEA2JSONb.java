@@ -27,6 +27,7 @@ import net.sf.marineapi.nmea.sentence.MTWSentence;
 import net.sf.marineapi.nmea.sentence.MWDSentence;
 import net.sf.marineapi.nmea.sentence.MWVSentence;
 import net.sf.marineapi.nmea.sentence.RMCSentence;
+import net.sf.marineapi.nmea.sentence.RSASentence;
 import net.sf.marineapi.nmea.sentence.STALKSentence;
 import net.sf.marineapi.nmea.sentence.Sentence;
 import net.sf.marineapi.nmea.sentence.SentenceId;
@@ -37,6 +38,7 @@ import net.sf.marineapi.nmea.sentence.XDRSentence;
 import net.sf.marineapi.nmea.util.CompassPoint;
 import net.sf.marineapi.nmea.util.Date;
 import net.sf.marineapi.nmea.util.Measurement;
+import net.sf.marineapi.nmea.util.Side;
 import net.sf.marineapi.nmea.util.Time;
 
 public class NMEA2JSONb {
@@ -157,11 +159,14 @@ public class NMEA2JSONb {
             try { json.put("maxDepth", _s.getMaxDepth1h()); } catch (Exception e) {}
             try { json.put("minDepth", _s.getMinDepth1h()); } catch (Exception e) {}
         } else if (s.getSentenceId().equals("MDA")) {
-        	MDASentence _s = (MDASentence) s;
-        	try { json.put("airTemp", _s.getAirTemperature()); } catch (Exception e) {}
-        	try { json.put("waterTemp", _s.getWaterTemperature()); } catch (Exception e) {}
-        	try { json.put("pressure", _s.getPrimaryBarometricPressure()); } catch (Exception e) {}
-        	try { json.put("humidity", _s.getRelativeHumidity()); } catch (Exception e) {}
+            MDASentence _s = (MDASentence) s;
+            try { json.put("airTemp", _s.getAirTemperature()); } catch (Exception e) {}
+            try { json.put("waterTemp", _s.getWaterTemperature()); } catch (Exception e) {}
+            try { json.put("pressure", _s.getPrimaryBarometricPressure()); } catch (Exception e) {}
+            try { json.put("humidity", _s.getRelativeHumidity()); } catch (Exception e) {}
+        } else if (s.getSentenceId().equals("RSA")) {
+            RSASentence _s = (RSASentence) s;
+            try { json.put("angle", _s.getRudderAngle(Side.STARBOARD)); } catch (Exception e) {}
         } else if (s.getSentenceId().equals("XXP")) {
 		    XXXPSentence _s = (XXXPSentence)s;
             try { json.put("pressure", 		_s.getPressure());	 	} catch (Exception e) {}
