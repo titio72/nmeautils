@@ -80,10 +80,17 @@ public class NMEAUtils {
 		double d = p1.distanceTo(p2);
 		return d * 1852.0;
 	}
-	
 
     public static Calendar getTimestamp(RMCSentence s) {
     	return getTimestamp(s.getTime(), s.getDate());
+    }
+
+    public static Calendar getTimestampOptimistic(RMCSentence s) {
+    	try {
+    		return getTimestamp(s.getTime(), s.getDate());
+    	} catch (Exception e) {
+    		return Calendar.getInstance();
+    	}
     }
     
     public static Calendar getTimestamp(Time time, Date date) { 
