@@ -173,7 +173,7 @@ public class NMEA2JSONb {
             XMCSentence _s = (XMCSentence) s;
             try { json.put("avg_lat", formatLL(_s.getAveragePosition().getLatitude(),
             		_s.getAveragePosition().getLatitudeHemisphere())); } catch (Exception e) {}
-            try { json.put("avg_lat", formatLL(_s.getAveragePosition().getLongitude(),
+            try { json.put("avg_lon", formatLL(_s.getAveragePosition().getLongitude(),
             		_s.getAveragePosition().getLongitudeHemisphere())); } catch (Exception e) {}
             try { json.put("anchor", _s.isAnchor()); } catch (Exception e) {}
         } else if (s.getSentenceId().equals("XXP")) {
