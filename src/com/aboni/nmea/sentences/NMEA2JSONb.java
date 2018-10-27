@@ -169,6 +169,13 @@ public class NMEA2JSONb {
         } else if (s.getSentenceId().equals("RSA")) {
             RSASentence _s = (RSASentence) s;
             try { json.put("angle", _s.getRudderAngle(Side.STARBOARD)); } catch (Exception e) {}
+        } else if (s.getSentenceId().equals("XMC")) {
+            XMCSentence _s = (XMCSentence) s;
+            try { json.put("avg_lat", formatLL(_s.getAveragePosition().getLatitude(),
+            		_s.getAveragePosition().getLatitudeHemisphere())); } catch (Exception e) {}
+            try { json.put("avg_lat", formatLL(_s.getAveragePosition().getLongitude(),
+            		_s.getAveragePosition().getLongitudeHemisphere())); } catch (Exception e) {}
+            try { json.put("anchor", _s.isAnchor()); } catch (Exception e) {}
         } else if (s.getSentenceId().equals("XXP")) {
 		    XXXPSentence _s = (XXXPSentence)s;
             try { json.put("pressure", 		_s.getPressure());	 	} catch (Exception e) {}

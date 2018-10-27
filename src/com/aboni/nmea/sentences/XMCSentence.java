@@ -10,5 +10,7 @@ public interface XMCSentence extends Sentence {
 	
 	Position getAveragePosition();
 	void setAveragePosition(Position p);
+	void setAnchor(boolean b);
+	boolean isAnchor();
 	
 }

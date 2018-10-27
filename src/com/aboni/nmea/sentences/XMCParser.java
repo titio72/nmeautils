@@ -12,10 +12,12 @@ public class XMCParser implements XMCSentence {
 	private TalkerId tid;
 	private Position average;
 	private Position median;
+	private boolean anchor;
 	private DecimalFormat nf;
 	
 	public XMCParser(TalkerId tlk) {
 		tid = tlk;
+		anchor = false;
 		nf = new DecimalFormat("00.000");
 		DecimalFormatSymbols dfs = new DecimalFormatSymbols();
 		dfs.setDecimalSeparator('.');
@@ -41,6 +43,16 @@ public class XMCParser implements XMCSentence {
 	public void setAveragePosition(Position p) {
 		average = p;
 	}
+	
+	@Override
+	public void setAnchor(boolean b) {
+		anchor = b;
+	}
+	
+	@Override
+	public boolean isAnchor() {
+		return anchor;
+	}
 
 	@Override
 	public char getBeginChar() {
@@ -49,7 +61,7 @@ public class XMCParser implements XMCSentence {
 
 	@Override
 	public int getFieldCount() {
-		return 8;
+		return 9;
 	}
 
 	@Override
@@ -129,7 +141,7 @@ public class XMCParser implements XMCSentence {
 			med_NS = getMedianPosition().getLongitudeHemisphere().toString();
 		}
 		
-		String s = String.format("$%sXMC,%s,%s,%s,%s,%s,%s,%s,%s", 
+		String s = String.format("$%sXMC,%s,%s,%s,%s,%s,%s,%s,%s,%d", 
 					tid.toString(),
 					med_lat,
 					med_NS,
@@ -138,7 +150,8 @@ public class XMCParser implements XMCSentence {
 					avg_lat,
 					avg_NS,
 					avg_lon,
-					avg_EW
+					avg_EW,
+					anchor?1:0
 				);
 
 		return s + "*" + Checksum.xor(s);
