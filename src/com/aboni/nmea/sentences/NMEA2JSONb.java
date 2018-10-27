@@ -62,21 +62,23 @@ public class NMEA2JSONb {
 		JSONObject json = new JSONObject();
 		json.put("topic", s.getSentenceId());
 		
-		if (s.getSentenceId().equals(SentenceId.RMC.toString())) {
+		if (s instanceof RMCSentence) {
 			RMCSentence _s = (RMCSentence)s;
-			Time t = _s.getTime();
-			Date d = _s.getDate();
-			Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-			c.set(d.getYear(), d.getMonth() - 1, d.getDay(), t.getHour(), t.getMinutes(), (int)t.getSeconds());
-			double dec_lon = (_s.getPosition().getLongitudeHemisphere()==CompassPoint.WEST)?-_s.getPosition().getLongitude():_s.getPosition().getLongitude();
-			double dec_lat = (_s.getPosition().getLatitudeHemisphere()==CompassPoint.SOUTH)?-_s.getPosition().getLatitude():_s.getPosition().getLatitude();
-			json.put("UTC", fISO.format(c.getTime()));
-			try { json.put("COG", _s.getCourse()); } catch (DataNotAvailableException e) { json.put("COG", 0.0); }
-			try { json.put("SOG", _s.getSpeed()); } catch (DataNotAvailableException e) { json.put("SOG", 0.0); }
-			json.put("latitude", formatLL(_s.getPosition().getLatitude(), _s.getPosition().getLatitudeHemisphere()) );
-			json.put("longitude", formatLL(_s.getPosition().getLongitude(), _s.getPosition().getLongitudeHemisphere()) );
-			json.put("dec_longitude", dec_lon);
-			json.put("dec_latitude",  dec_lat);
+			if (_s.isValid()) {
+				Time t = _s.getTime();
+				Date d = _s.getDate();
+				Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+				c.set(d.getYear(), d.getMonth() - 1, d.getDay(), t.getHour(), t.getMinutes(), (int)t.getSeconds());
+				double dec_lon = (_s.getPosition().getLongitudeHemisphere()==CompassPoint.WEST)?-_s.getPosition().getLongitude():_s.getPosition().getLongitude();
+				double dec_lat = (_s.getPosition().getLatitudeHemisphere()==CompassPoint.SOUTH)?-_s.getPosition().getLatitude():_s.getPosition().getLatitude();
+				json.put("UTC", fISO.format(c.getTime()));
+				try { json.put("COG", _s.getCourse()); } catch (DataNotAvailableException e) { json.put("COG", 0.0); }
+				try { json.put("SOG", _s.getSpeed()); } catch (DataNotAvailableException e) { json.put("SOG", 0.0); }
+				json.put("latitude", formatLL(_s.getPosition().getLatitude(), _s.getPosition().getLatitudeHemisphere()) );
+				json.put("longitude", formatLL(_s.getPosition().getLongitude(), _s.getPosition().getLongitudeHemisphere()) );
+				json.put("dec_longitude", dec_lon);
+				json.put("dec_latitude",  dec_lat);
+			}
 		} else if (s.getSentenceId().equals(SentenceId.VLW.toString())) {
 			VLWSentence _s = (VLWSentence)s;
 			double tot = _s.getTotal();
@@ -150,8 +152,8 @@ public class NMEA2JSONb {
 			json.put("speed", _s.getSpeed());
 		} else if (s.getSentenceId().equals(SentenceId.VTG.toString())) {
 			VTGSentence _s = (VTGSentence)s;
-			json.put("course", _s.getMagneticCourse());
-			json.put("speed", _s.getSpeedKnots());
+			try { json.put("course", _s.getMagneticCourse()); 	} catch (Exception e) {}
+			try { json.put("speed", _s.getSpeedKnots());  	} catch (Exception e) {}
 			try { json.put("trueCourse", _s.getTrueCourse()); 	} catch (Exception e) {}
         } else if (s.getSentenceId().equals("XDP")) {
             XDPSentence _s = (XDPSentence)s;

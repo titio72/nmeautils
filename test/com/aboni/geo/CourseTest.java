@@ -147,6 +147,19 @@ public class CourseTest {
 		assertEquals(0.11785, c.getDistance(), 0.00001);
 	}
 
+	@Test
+	public void testStop() {
+		long t0 = System.currentTimeMillis();
+		long t1 = t0 + 60000 /* 1m */;
+		GeoPositionT p0 = new GeoPositionT(t0, 43.67, 9.84);
+		GeoPositionT p1 = new GeoPositionT(t1, 43.67, 9.84);
+		Course c = new Course(p0, p1);
+		
+		assertEquals(60000, c.getInterval());
+		assertEquals(0.0, c.getSpeed(), 0.01);
+		assertEquals(0.0, c.getDistance(), 0.00001);
+	}
+
 
 
 }
