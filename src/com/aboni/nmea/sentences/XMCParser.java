@@ -5,6 +5,7 @@ import java.text.DecimalFormatSymbols;
 
 import net.sf.marineapi.nmea.sentence.Checksum;
 import net.sf.marineapi.nmea.sentence.TalkerId;
+import net.sf.marineapi.nmea.util.CompassPoint;
 import net.sf.marineapi.nmea.util.Position;
 
 public class XMCParser implements XMCSentence {
@@ -129,16 +130,16 @@ public class XMCParser implements XMCSentence {
 		
 		if (getAveragePosition()!=null) {
 			avg_lat = getLatitude(getAveragePosition().getLatitude());
-			avg_NS = getAveragePosition().getLatitudeHemisphere().toString();
+			avg_NS = (getAveragePosition().getLatitudeHemisphere()==CompassPoint.NORTH)?"N":"S";
 			avg_lon = getLongitude(getAveragePosition().getLongitude());
-			avg_NS = getAveragePosition().getLongitudeHemisphere().toString();
+			avg_EW = (getAveragePosition().getLongitudeHemisphere()==CompassPoint.EAST)?"E":"W";
 		}
 		
 		if (getMedianPosition()!=null) {
 			med_lat = getLatitude(getMedianPosition().getLatitude());
-			med_NS = getMedianPosition().getLatitudeHemisphere().toString();
+			med_NS = getMedianPosition().getLatitudeHemisphere()==CompassPoint.NORTH?"N":"S";
 			med_lon = getLongitude(getMedianPosition().getLongitude());
-			med_NS = getMedianPosition().getLongitudeHemisphere().toString();
+			med_EW = getMedianPosition().getLongitudeHemisphere()==CompassPoint.EAST?"E":"W";
 		}
 		
 		String s = String.format("$%sXMC,%s,%s,%s,%s,%s,%s,%s,%s,%d", 
