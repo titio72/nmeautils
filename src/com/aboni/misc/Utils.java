@@ -2,6 +2,7 @@ package com.aboni.misc;
 
 import net.sf.geographiclib.Geodesic;
 import net.sf.geographiclib.GeodesicData;
+import net.sf.marineapi.nmea.util.CompassPoint;
 import net.sf.marineapi.nmea.util.Position;
 
 public class Utils {
@@ -127,5 +128,12 @@ public class Utils {
 		return Utils.normalizeDegrees0_360(tack);
 		
 		
+	}
+
+	public static String formatLL(double d, CompassPoint p) {
+		int deg = (int) Math.floor(d);
+		double min = (d-deg)*60.0;
+		String pp = (p==CompassPoint.EAST)?"E":(p==CompassPoint.WEST)?"W":(p==CompassPoint.NORTH)?"N":"S";
+		return  String.format("%03d", deg) + " " + String.format("%06.3f", min) +   " " + pp;
 	}
 }

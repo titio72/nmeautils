@@ -9,6 +9,7 @@ import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.aboni.misc.Utils;
 import com.aboni.nmea.sentences.VWRSentence;
 import com.aboni.nmea.sentences.XDPSentence;
 import com.aboni.nmea.sentences.XXXPSentence;
@@ -51,13 +52,6 @@ public class NMEA2JSONb {
 		fISO.setTimeZone(tz);
 	}
     
-	private String formatLL(double d, CompassPoint p) {
-		int deg = (int) Math.floor(d);
-		double min = (d-deg)*60.0;
-		String pp = (p==CompassPoint.EAST)?"E":(p==CompassPoint.WEST)?"W":(p==CompassPoint.NORTH)?"N":"S";
-		return  String.format("%03d", deg) + " " + String.format("%06.3f", min) +   " " + pp;
-	}
-	
 	public JSONObject convert(Sentence s) throws JSONException {
 		JSONObject json = new JSONObject();
 		json.put("topic", s.getSentenceId());
@@ -69,13 +63,13 @@ public class NMEA2JSONb {
 				Date d = _s.getDate();
 				Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 				c.set(d.getYear(), d.getMonth() - 1, d.getDay(), t.getHour(), t.getMinutes(), (int)t.getSeconds());
-				double dec_lon = (_s.getPosition().getLongitudeHemisphere()==CompassPoint.WEST)?-_s.getPosition().getLongitude():_s.getPosition().getLongitude();
-				double dec_lat = (_s.getPosition().getLatitudeHemisphere()==CompassPoint.SOUTH)?-_s.getPosition().getLatitude():_s.getPosition().getLatitude();
+				double dec_lon = _s.getPosition().getLongitude();
+				double dec_lat = _s.getPosition().getLatitude();
 				json.put("UTC", fISO.format(c.getTime()));
 				try { json.put("COG", _s.getCourse()); } catch (DataNotAvailableException e) { json.put("COG", 0.0); }
 				try { json.put("SOG", _s.getSpeed()); } catch (DataNotAvailableException e) { json.put("SOG", 0.0); }
-				json.put("latitude", formatLL(_s.getPosition().getLatitude(), _s.getPosition().getLatitudeHemisphere()) );
-				json.put("longitude", formatLL(_s.getPosition().getLongitude(), _s.getPosition().getLongitudeHemisphere()) );
+				json.put("latitude", Utils.formatLL(Math.abs(dec_lat), _s.getPosition().getLatitudeHemisphere()) );
+				json.put("longitude", Utils.formatLL(Math.abs(dec_lon), _s.getPosition().getLongitudeHemisphere()) );
 				json.put("dec_longitude", dec_lon);
 				json.put("dec_latitude",  dec_lat);
 			}
@@ -171,9 +165,9 @@ public class NMEA2JSONb {
             try { json.put("angle", _s.getRudderAngle(Side.STARBOARD)); } catch (Exception e) {}
         } else if (s.getSentenceId().equals("XMC")) {
             XMCSentence _s = (XMCSentence) s;
-            try { json.put("avg_lat", formatLL(_s.getAveragePosition().getLatitude(),
+            try { json.put("avg_lat", Utils.formatLL(_s.getAveragePosition().getLatitude(),
             		_s.getAveragePosition().getLatitudeHemisphere())); } catch (Exception e) {}
-            try { json.put("avg_lon", formatLL(_s.getAveragePosition().getLongitude(),
+            try { json.put("avg_lon", Utils.formatLL(_s.getAveragePosition().getLongitude(),
             		_s.getAveragePosition().getLongitudeHemisphere())); } catch (Exception e) {}
             try { json.put("anchor", _s.isAnchor()); } catch (Exception e) {}
         } else if (s.getSentenceId().equals("XXP")) {

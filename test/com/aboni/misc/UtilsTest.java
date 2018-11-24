@@ -4,8 +4,17 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import net.sf.marineapi.nmea.util.CompassPoint;
+
 public class UtilsTest {
 
+	@Test
+	public void testFormatLL() {
+		String s = Utils.formatLL(1.5, CompassPoint.WEST);
+		assertEquals("001 30.000 W", s);
+			
+	}
+	
 	@Test
 	public void testNormalizeDegrees0_360() {
 		assertEquals(30.0, Utils.normalizeDegrees0_360(30.0), 0.0001);
