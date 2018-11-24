@@ -9,10 +9,15 @@ import net.sf.marineapi.nmea.util.CompassPoint;
 public class UtilsTest {
 
 	@Test
-	public void testFormatLL() {
+	public void testFormatLL_LonWest() {
 		String s = Utils.formatLL(1.5, CompassPoint.WEST);
 		assertEquals("001 30.000 W", s);
-			
+	}
+	
+	@Test
+	public void testFormatLL_LonEast() {
+		String s = Utils.formatLL(1.5, CompassPoint.EAST);
+		assertEquals("001 30.000 E", s);
 	}
 	
 	@Test
