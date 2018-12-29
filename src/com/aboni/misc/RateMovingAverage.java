@@ -4,11 +4,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class RateMovingAverage implements MovingAverage {
 
 	private long period = 60 * 1000;
 	private double mAvg = Double.NaN;
-	private List<Sample> samples = new LinkedList<Sample>();
+	private final List<Sample> samples = new LinkedList<>();
 
 	public RateMovingAverage() {
 	}

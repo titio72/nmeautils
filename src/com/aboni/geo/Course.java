@@ -1,14 +1,14 @@
 package com.aboni.geo;
 
 import com.aboni.misc.Utils;
-
 import net.sf.geographiclib.Geodesic;
 import net.sf.geographiclib.GeodesicData;
 import net.sf.marineapi.nmea.util.Position;
 
+@SuppressWarnings("unused")
 public class Course {
 
-	private Position p0;
+	private final Position p0;
 	private Position p1;
 	private double distance;
 	private double speed;

@@ -1,50 +1,26 @@
 package com.aboni.nmea.sentences;
 
+import com.aboni.misc.Utils;
+import com.aboni.seatalk.Stalk84;
+import net.sf.marineapi.nmea.parser.DataNotAvailableException;
+import net.sf.marineapi.nmea.sentence.*;
+import net.sf.marineapi.nmea.util.Date;
+import net.sf.marineapi.nmea.util.Measurement;
+import net.sf.marineapi.nmea.util.Side;
+import net.sf.marineapi.nmea.util.Time;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.aboni.misc.Utils;
-import com.aboni.nmea.sentences.VWRSentence;
-import com.aboni.nmea.sentences.XDPSentence;
-import com.aboni.nmea.sentences.XXXPSentence;
-import com.aboni.seatalk.Stalk84;
-
-import net.sf.marineapi.nmea.parser.DataNotAvailableException;
-import net.sf.marineapi.nmea.sentence.DBTSentence;
-import net.sf.marineapi.nmea.sentence.DPTSentence;
-import net.sf.marineapi.nmea.sentence.HDGSentence;
-import net.sf.marineapi.nmea.sentence.HDMSentence;
-import net.sf.marineapi.nmea.sentence.HDTSentence;
-import net.sf.marineapi.nmea.sentence.MDASentence;
-import net.sf.marineapi.nmea.sentence.MMBSentence;
-import net.sf.marineapi.nmea.sentence.MTASentence;
-import net.sf.marineapi.nmea.sentence.MTWSentence;
-import net.sf.marineapi.nmea.sentence.MWDSentence;
-import net.sf.marineapi.nmea.sentence.MWVSentence;
-import net.sf.marineapi.nmea.sentence.RMCSentence;
-import net.sf.marineapi.nmea.sentence.RSASentence;
-import net.sf.marineapi.nmea.sentence.STALKSentence;
-import net.sf.marineapi.nmea.sentence.Sentence;
-import net.sf.marineapi.nmea.sentence.SentenceId;
-import net.sf.marineapi.nmea.sentence.VHWSentence;
-import net.sf.marineapi.nmea.sentence.VLWSentence;
-import net.sf.marineapi.nmea.sentence.VTGSentence;
-import net.sf.marineapi.nmea.sentence.XDRSentence;
-import net.sf.marineapi.nmea.util.CompassPoint;
-import net.sf.marineapi.nmea.util.Date;
-import net.sf.marineapi.nmea.util.Measurement;
-import net.sf.marineapi.nmea.util.Side;
-import net.sf.marineapi.nmea.util.Time;
-
+@SuppressWarnings("MagicConstant")
 public class NMEA2JSONb {
 	
-	private DateFormat fISO; 
+	private final DateFormat fISO;
 	
     public NMEA2JSONb() {
 		TimeZone tz = TimeZone.getTimeZone("UTC");
@@ -62,6 +38,7 @@ public class NMEA2JSONb {
 				Time t = _s.getTime();
 				Date d = _s.getDate();
 				Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+				//noinspection MagicConstant
 				c.set(d.getYear(), d.getMonth() - 1, d.getDay(), t.getHour(), t.getMinutes(), (int)t.getSeconds());
 				double dec_lon = _s.getPosition().getLongitude();
 				double dec_lat = _s.getPosition().getLatitude();
@@ -84,7 +61,7 @@ public class NMEA2JSONb {
 			DPTSentence _s = (DPTSentence)s;
 			double d = _s.getDepth();
 			double o = 0.0;
-			try { o = _s.getOffset(); } catch (Exception e) {}
+			try { o = _s.getOffset(); } catch (Exception ignored) {}
 			json.put("raw_depth", d);
 			json.put("offset", o);
 			json.put("depth", d + o);
@@ -96,8 +73,8 @@ public class NMEA2JSONb {
             // vessel heading with deviation and variation
             HDGSentence _s = (HDGSentence)s;
             json.put("angle", _s.getHeading());
-            try { json.put("variation", _s.getVariation()); } catch (Exception e) {}
-            try { json.put("deviation", _s.getDeviation()); } catch (Exception e) {}
+            try { json.put("variation", _s.getVariation()); } catch (Exception ignored) {}
+            try { json.put("deviation", _s.getDeviation()); } catch (Exception ignored) {}
         } else if (s.getSentenceId().equals(SentenceId.HDM.toString())) { /* OK */
             HDMSentence _s = (HDMSentence)s;
             json.put("angle", _s.getHeading());
@@ -114,18 +91,18 @@ public class NMEA2JSONb {
 			MWDSentence _s = (MWDSentence)s;
 			try {
 				json.put("true_angle", _s.getTrueWindDirection());
-			} catch (Exception e) {}
+			} catch (Exception ignored) {}
 			try {
 				json.put("mag_angle", _s.getMagneticWindDirection());
-			} catch (Exception e) {}
+			} catch (Exception ignored) {}
 			json.put("speed", _s.getWindSpeed()/0.51444444444 );
 			//json.put("speed", _s.getWindSpeedKnots());
 		} else if (s.getSentenceId().equals(SentenceId.VHW.toString())) { /* OK */
 			VHWSentence _s = (VHWSentence)s;
-			try { json.put("mag_angle", _s.getMagneticHeading()); } catch (Exception e) {}
-			try { json.put("true_angle", _s.getHeading()); } catch (Exception e) {}
+			try { json.put("mag_angle", _s.getMagneticHeading()); } catch (Exception ignored) {}
+			try { json.put("true_angle", _s.getHeading()); } catch (Exception ignored) {}
 			try { json.put("speed", _s.getSpeedKnots()); } catch (Exception e) {
-				try { json.put("speed", _s.getSpeedKmh() / 1.852); } catch (Exception ee) {}
+				try { json.put("speed", _s.getSpeedKmh() / 1.852); } catch (Exception ignored) {}
 			}
 		} else if (s.getSentenceId().equals(SentenceId.MTW.toString())) {
 			MTWSentence _s = (MTWSentence)s;
@@ -146,43 +123,43 @@ public class NMEA2JSONb {
 			json.put("speed", _s.getSpeed());
 		} else if (s.getSentenceId().equals(SentenceId.VTG.toString())) {
 			VTGSentence _s = (VTGSentence)s;
-			try { json.put("course", _s.getMagneticCourse()); 	} catch (Exception e) {}
-			try { json.put("speed", _s.getSpeedKnots());  	} catch (Exception e) {}
-			try { json.put("trueCourse", _s.getTrueCourse()); 	} catch (Exception e) {}
+			try { json.put("course", _s.getMagneticCourse()); 	} catch (Exception ignored) {}
+			try { json.put("speed", _s.getSpeedKnots());  	} catch (Exception ignored) {}
+			try { json.put("trueCourse", _s.getTrueCourse()); 	} catch (Exception ignored) {}
         } else if (s.getSentenceId().equals("XDP")) {
             XDPSentence _s = (XDPSentence)s;
             json.put("depth", _s.getDepth());
-            try { json.put("maxDepth", _s.getMaxDepth1h()); } catch (Exception e) {}
-            try { json.put("minDepth", _s.getMinDepth1h()); } catch (Exception e) {}
+            try { json.put("maxDepth", _s.getMaxDepth1h()); } catch (Exception ignored) {}
+            try { json.put("minDepth", _s.getMinDepth1h()); } catch (Exception ignored) {}
         } else if (s.getSentenceId().equals("MDA")) {
             MDASentence _s = (MDASentence) s;
-            try { json.put("airTemp", _s.getAirTemperature()); } catch (Exception e) {}
-            try { json.put("waterTemp", _s.getWaterTemperature()); } catch (Exception e) {}
-            try { json.put("pressure", _s.getPrimaryBarometricPressure()); } catch (Exception e) {}
-            try { json.put("humidity", _s.getRelativeHumidity()); } catch (Exception e) {}
+            try { json.put("airTemp", _s.getAirTemperature()); } catch (Exception ignored) {}
+            try { json.put("waterTemp", _s.getWaterTemperature()); } catch (Exception ignored) {}
+            try { json.put("pressure", _s.getPrimaryBarometricPressure()); } catch (Exception ignored) {}
+            try { json.put("humidity", _s.getRelativeHumidity()); } catch (Exception ignored) {}
         } else if (s.getSentenceId().equals("RSA")) {
             RSASentence _s = (RSASentence) s;
-            try { json.put("angle", _s.getRudderAngle(Side.STARBOARD)); } catch (Exception e) {}
+            try { json.put("angle", _s.getRudderAngle(Side.STARBOARD)); } catch (Exception ignored) {}
         } else if (s.getSentenceId().equals("XMC")) {
             XMCSentence _s = (XMCSentence) s;
             try { json.put("avg_lat", Utils.formatLL(_s.getAveragePosition().getLatitude(),
-            		_s.getAveragePosition().getLatitudeHemisphere())); } catch (Exception e) {}
+            		_s.getAveragePosition().getLatitudeHemisphere())); } catch (Exception ignored) {}
             try { json.put("avg_lon", Utils.formatLL(_s.getAveragePosition().getLongitude(),
-            		_s.getAveragePosition().getLongitudeHemisphere())); } catch (Exception e) {}
-            try { json.put("anchor", _s.isAnchor()); } catch (Exception e) {}
+            		_s.getAveragePosition().getLongitudeHemisphere())); } catch (Exception ignored) {}
+            try { json.put("anchor", _s.isAnchor()); } catch (Exception ignored) {}
         } else if (s.getSentenceId().equals("XXP")) {
 		    XXXPSentence _s = (XXXPSentence)s;
-            try { json.put("pressure", 		_s.getPressure());	 	} catch (Exception e) {}
-            try { json.put("temperature", 	_s.getTemperature());	} catch (Exception e) {}
-            try { json.put("rotX", 			_s.getRotationX()); 	} catch (Exception e) {}
-            try { json.put("rotY", 			_s.getRotationY()); 	} catch (Exception e) {}
-            try { json.put("rotZ", 			_s.getRotationZ()); 	} catch (Exception e) {}
-            try { json.put("magX", 			_s.getMagX()); 			} catch (Exception e) {}
-            try { json.put("magY", 			_s.getMagY()); 			} catch (Exception e) {}
-            try { json.put("magZ", 			_s.getMagZ()); 			} catch (Exception e) {}
-            try { json.put("voltage1", 		_s.getVoltage()); 		} catch (Exception e) {}
-            try { json.put("voltage2", 		_s.getVoltage1()); 		} catch (Exception e) {}
-            try { json.put("heading", 		_s.getHeading()); 		} catch (Exception e) {}
+            try { json.put("pressure", 		_s.getPressure());	 	} catch (Exception ignored) {}
+            try { json.put("temperature", 	_s.getTemperature());	} catch (Exception ignored) {}
+            try { json.put("rotX", 			_s.getRotationX()); 	} catch (Exception ignored) {}
+            try { json.put("rotY", 			_s.getRotationY()); 	} catch (Exception ignored) {}
+            try { json.put("rotZ", 			_s.getRotationZ()); 	} catch (Exception ignored) {}
+            try { json.put("magX", 			_s.getMagX()); 			} catch (Exception ignored) {}
+            try { json.put("magY", 			_s.getMagY()); 			} catch (Exception ignored) {}
+            try { json.put("magZ", 			_s.getMagZ()); 			} catch (Exception ignored) {}
+            try { json.put("voltage1", 		_s.getVoltage()); 		} catch (Exception ignored) {}
+            try { json.put("voltage2", 		_s.getVoltage1()); 		} catch (Exception ignored) {}
+            try { json.put("heading", 		_s.getHeading()); 		} catch (Exception ignored) {}
 		} else if (s.getSentenceId().equals("XDR")) {
             XDRSentence _s = (XDRSentence)s;
             List<Measurement> mm = _s.getMeasurements();
@@ -195,8 +172,7 @@ public class NMEA2JSONb {
             }
 		} else if (s.getSentenceId().equals("ALK")) {
 			STALKSentence _s = (STALKSentence)s;
-			switch (_s.getCommand()) {
-			case "84":
+			if ("84".equals(_s.getCommand())) {
 				Stalk84 s84 = new Stalk84(_s);
 				json.put("topic", "auto");
 				json.put("heading", s84.getHeading());
@@ -208,8 +184,6 @@ public class NMEA2JSONb {
 				if (s84.isTrack()) json.put("status", "Track");
 				json.put("offCourse", s84.isErr_off_course());
 				json.put("windShift", s84.isErr_wind_shift());
-				break;
-			default: 
 			}
 		}
 		return json;

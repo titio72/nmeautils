@@ -1,20 +1,16 @@
 package com.aboni.nmea.sentences;
 
-import java.util.Calendar;
-import java.util.TimeZone;
-
 import net.sf.marineapi.nmea.parser.SentenceFactory;
-import net.sf.marineapi.nmea.sentence.DateSentence;
-import net.sf.marineapi.nmea.sentence.GLLSentence;
-import net.sf.marineapi.nmea.sentence.PositionSentence;
-import net.sf.marineapi.nmea.sentence.RMCSentence;
-import net.sf.marineapi.nmea.sentence.Sentence;
-import net.sf.marineapi.nmea.sentence.TimeSentence;
+import net.sf.marineapi.nmea.sentence.*;
 import net.sf.marineapi.nmea.util.DataStatus;
 import net.sf.marineapi.nmea.util.Date;
 import net.sf.marineapi.nmea.util.Position;
 import net.sf.marineapi.nmea.util.Time;
 
+import java.util.Calendar;
+import java.util.TimeZone;
+
+@SuppressWarnings("unused")
 public class NMEAUtils {
 
 	private NMEAUtils() {}
@@ -60,21 +56,20 @@ public class NMEAUtils {
     }
 	
 	/**
-	 * Get distance in NM
-	 * @param p1
-	 * @param p2
-	 * @return
+	 * Get distance in NM between two positions.
+	 * @param p1 The first position.
+	 * @param p2 The second position.
+	 * @return The distance between p1 and p2 in nautical miles.
 	 */
 	public static double getDistance(Position p1, Position p2) {
-		double d = p1.distanceTo(p2);
-		return d;
+        return p1.distanceTo(p2);
 	}
 	
 	/**
-	 * Get distance in meters
-	 * @param p1
-	 * @param p2
-	 * @return
+	 * Get distance in meters between two positions.
+     * @param p1 The first position.
+     * @param p2 The second position.
+     * @return The distance between p1 and p2 in meters.
 	 */
 	public static double getDistanceMeters(Position p1, Position p2) {
 		double d = p1.distanceTo(p2);
@@ -96,7 +91,7 @@ public class NMEAUtils {
     public static Calendar getTimestamp(Time time, Date date) { 
        	int h = time.getOffsetHours();
     	int m = time.getOffsetMinutes();
-    	Calendar c = null;
+    	Calendar c;
     	if (h==0 && m==0) {
 	    	c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     	} else {

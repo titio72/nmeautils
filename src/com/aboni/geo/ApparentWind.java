@@ -4,7 +4,7 @@ import com.aboni.misc.Utils;
 
 public class ApparentWind {
     
-    private double appWindSpeed;
+    private final double appWindSpeed;
     private double appWindDeg;
     
     public Double getApparentWindSpeed() {

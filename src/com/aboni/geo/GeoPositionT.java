@@ -1,13 +1,13 @@
 package com.aboni.geo;
 
+import com.aboni.misc.Utils;
+import net.sf.marineapi.nmea.util.Position;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.aboni.misc.Utils;
-
-import net.sf.marineapi.nmea.util.Position;
-
+@SuppressWarnings("unused")
 public class GeoPositionT extends Position {
 
 	private static final DateFormat f = new SimpleDateFormat("HH:mm:ss");

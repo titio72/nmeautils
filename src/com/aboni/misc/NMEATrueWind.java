@@ -1,29 +1,22 @@
 package com.aboni.misc;
 
 import com.aboni.geo.TrueWind;
-
 import net.sf.marineapi.nmea.parser.DataNotAvailableException;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
-import net.sf.marineapi.nmea.sentence.HDGSentence;
-import net.sf.marineapi.nmea.sentence.HDMSentence;
-import net.sf.marineapi.nmea.sentence.HeadingSentence;
-import net.sf.marineapi.nmea.sentence.MWDSentence;
-import net.sf.marineapi.nmea.sentence.MWVSentence;
-import net.sf.marineapi.nmea.sentence.SentenceId;
-import net.sf.marineapi.nmea.sentence.TalkerId;
-import net.sf.marineapi.nmea.sentence.VHWSentence;
+import net.sf.marineapi.nmea.sentence.*;
 import net.sf.marineapi.nmea.util.Units;
 
+@SuppressWarnings("unused")
 public class NMEATrueWind {
 	
-	private Event<HDMSentence> eHeadingM = new Event<HDMSentence>(null, 0);
-	private Event<HDGSentence> eHeadingG = new Event<HDGSentence>(null, 0);
-	private Event<VHWSentence> eSpeed = new Event<VHWSentence>(null, 0);
-	private Event<MWVSentence> eAWind = new Event<MWVSentence>(null, 0);
-	private Event<MWVSentence> eTWind = new Event<MWVSentence>(null, 0);
-	private Event<MWDSentence> eWind = new Event<MWDSentence>(null, 0);
+	private final Event<HDMSentence> eHeadingM = new Event<>(null, 0);
+	private final Event<HDGSentence> eHeadingG = new Event<>(null, 0);
+	private final Event<VHWSentence> eSpeed = new Event<>(null, 0);
+	private final Event<MWVSentence> eAWind = new Event<>(null, 0);
+	private final Event<MWVSentence> eTWind = new Event<>(null, 0);
+	private final Event<MWDSentence> eWind = new Event<>(null, 0);
 	
-	private TalkerId id;
+	private final TalkerId id;
 	
 	public NMEATrueWind(TalkerId id) {
 		this.id = id;
@@ -56,17 +49,17 @@ public class NMEATrueWind {
 			double td = getTrueHeading(hs) + eTWind.event.getAngle();
 			if (!Double.isNaN(td)) {
 				td = Utils.normalizeDegrees0_360(td);
-				s.setTrueWindDirection(td);
+				s.setTrueWindDirection(Utils.round(td, 2));
 			}
 
 			double md = getMagHeading(hs) + eTWind.event.getAngle();
 			if (!Double.isNaN(md)) {
 				md = Utils.normalizeDegrees0_360(md);
-				s.setMagneticWindDirection(md);
+				s.setMagneticWindDirection(Utils.round(md, 2));
 			}
 			
 			s.setWindSpeedKnots(eTWind.event.getSpeed());
-			s.setWindSpeed(eTWind.event.getSpeed()*0.51444444444);
+			s.setWindSpeed(Utils.round(eTWind.event.getSpeed()*0.51444444444, 2));
 			
 			eWind.setEvent(s, time);
 		}
@@ -74,8 +67,8 @@ public class NMEATrueWind {
 
     private static double getTrueHeading(HeadingSentence h) {
 		double dev = 0.0, var = 0.0;
-		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception e) {}
-		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getVariation(); } catch (Exception e) {}
+		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception ignored) {}
+		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getVariation(); } catch (Exception ignored) {}
 		try {
 			return h.getHeading() + var + dev;
 		} catch (DataNotAvailableException e) {
@@ -85,7 +78,7 @@ public class NMEATrueWind {
 	
     private static double getMagHeading(HeadingSentence h) {
 		double dev = 0.0;
-		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception e) {}
+		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception ignored) {}
 		try {
 			if (h instanceof VHWSentence) {
 				return ((VHWSentence)h).getMagneticHeading();
@@ -123,9 +116,6 @@ public class NMEATrueWind {
 		}
 	}
 
-	/**********************************************************/
-
-	
 	/**
 	 * Set the heading (necessary to calculate the direction of the wind from north).
 	 * @param s		The heading
@@ -147,8 +137,6 @@ public class NMEATrueWind {
 		return eHeadingG.getAge(now);
 	}
 	
-	/**********************************************************/
-	
 	public void setWind(MWDSentence s, long time) {
 		eWind.setEvent(s, time);
 	}
@@ -161,8 +149,6 @@ public class NMEATrueWind {
 		return eWind.getAge(now);
 	}
 
-	/**********************************************************/
-	
 	public void setSpeed(VHWSentence s, long time) {
 		eSpeed.setEvent(s, time);
 	}
@@ -174,8 +160,6 @@ public class NMEATrueWind {
 	public long getSpeedAge(long now) {
 		return eSpeed.getAge(now);
 	}
-	
-	/**********************************************************/
 	
 	/**
 	 * Set the wind information.

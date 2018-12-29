@@ -1,31 +1,24 @@
 package com.aboni.misc;
 
-import static org.junit.Assert.*;
+import com.aboni.misc.WindStream.Conf;
+import com.aboni.nmea.sentences.NMEASentenceFilter;
+import com.aboni.nmea.sentences.VWRSentence;
+import net.sf.marineapi.nmea.parser.SentenceFactory;
+import net.sf.marineapi.nmea.sentence.*;
+import net.sf.marineapi.nmea.util.Side;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import com.aboni.misc.WindStream.Conf;
-import com.aboni.nmea.sentences.VWRSentence;
-
-import net.sf.marineapi.nmea.parser.SentenceFactory;
-import net.sf.marineapi.nmea.sentence.HDGSentence;
-import net.sf.marineapi.nmea.sentence.MWDSentence;
-import net.sf.marineapi.nmea.sentence.MWVSentence;
-import net.sf.marineapi.nmea.sentence.Sentence;
-import net.sf.marineapi.nmea.sentence.SentenceId;
-import net.sf.marineapi.nmea.sentence.TalkerId;
-import net.sf.marineapi.nmea.sentence.VHWSentence;
-import net.sf.marineapi.nmea.util.Side;
+import static org.junit.Assert.*;
 
 public class WindStreamTest {
 
 	private class WS extends WindStream {
-		
+
 		List<Event<Sentence>> output = new ArrayList<>();
 		
 		WS(boolean useVWR, boolean forceCalcTrue) {
@@ -35,8 +28,10 @@ public class WindStreamTest {
 		
 		@Override
 		protected void onProcSentence(Sentence s, long time) {
+			assertNotNull(s);
 			output.add(new Event<>(s, time));
-		}		
+		}
+
 		
 		List<Event<Sentence>> getOutput() {
 			return output;
@@ -45,17 +40,40 @@ public class WindStreamTest {
 		void reset() {
 			output.clear();
 		}
+
+		void dump() {
+			for (Event<Sentence> s: output) System.out.println(s.event);
+		}
+
+		/**
+		 * Get the "count" instance of "type"
+		 * @param type The type of instance to be found
+		 * @param count Skip the first "count"
+		 * @param  filter Optional filter
+		 * @return The sentence in the stream of the request type
+		 */
+		Sentence find(final String type, int count, NMEASentenceFilter filter) {
+			for (Event<Sentence> e: output) {
+				if (e!=null && e.event!=null && type.equals(e.event.getSentenceId())) {
+					if (filter==null || filter.match(e.event, null)) {
+						if (count == 0) return e.event;
+						else count--;
+					}
+				}
+			}
+			return null;
+		}
 	}
 	
-	
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 	}
 
 	private static Conf getConf(boolean useVWR, boolean forceCalcTrue) {
 		Conf c = new Conf();
 		c.useVWR = useVWR;
 		c.forceCalcTrue = forceCalcTrue;
+		c.skipFirstCalculation = false;
 		return c;
 	}
 	
@@ -102,55 +120,28 @@ public class WindStreamTest {
 	
 	
 	@Test
-	public void testNoTrueWind() {
+	public void testCalcTrueAndAbsoluteWind() {
 		WS ws = new WS(false, false);
 		VHWSentence vhw = getVHW(0, 5);
 		MWVSentence mwv_r = getMWV(45, 5 * Math.sqrt(2), false);
 		HDGSentence hd = getHDG(0);
 		
-		MWVSentence mwv_t = getMWV(90, 5, true);
-		MWDSentence mwd = getMWD(90, 5);
-		
-		// run the stream for a few seconds
-		long time = 0;
-		for (int i = 0; i<10; i++) {
-			time += 1000;
-			ws.onSentence(hd, time + 50);
-			ws.onSentence(vhw, time + 50);
-			ws.onSentence(mwv_r, time + 100);
-		}
+		long t0 = (System.currentTimeMillis()/86400)*86400;
+		ws.onSentence(hd, t0 + 50);
+		ws.onSentence(vhw, t0 + 50);
+		ws.onSentence(mwv_r, t0 + 100);
+		ws.dump();
 
-		time += 1000;
-		ws.reset();
-		ws.onSentence(hd, time + 50);
-		ws.onSentence(vhw, time + 50);
-		ws.onSentence(mwv_r, time + 100);
-	
+		MWVSentence mwv_t = (MWVSentence)ws.find("MWV", 0, (Sentence s, String src)->{ return ((MWVSentence)s).isTrue(); });
+		assertNotNull(mwv_t);
+		assertEquals(TalkerId.P, mwv_t.getTalkerId());
+		assertEquals(mwv_t.getSpeed(), 5, 0.05 /* allow 0.05 knots of difference*/ );
+		assertEquals(mwv_t.getAngle(), 90, 0.5 /* allow 0.5 degree for rounding issues*/);
 
-		boolean okMWV = false;
-		boolean okMWD = false;
-		Iterator<Event<Sentence>> i = ws.getOutput().iterator();
-		for (; i.hasNext(); ) {
-			Sentence s = i.next().event;
-			if (s instanceof MWVSentence) {
-				if (((MWVSentence) s).isTrue()) {
-					assertEquals(TalkerId.P, s.getTalkerId());
-					assertEquals(mwv_t.getSpeed(), ((MWVSentence)s).getSpeed(), 0.05 /* allow 0.05 knots of difference*/ );
-					assertEquals(mwv_t.getAngle(), ((MWVSentence)s).getAngle(), 2.0 /* allow 2 degree for rounding issues*/);
-					okMWV = true;
-				}
-				
-			}
-			if (s instanceof MWDSentence) {
-				assertEquals(TalkerId.P, s.getTalkerId());
-				assertEquals(mwd.getWindSpeedKnots(), ((MWDSentence)s).getWindSpeedKnots(), 0.05);
-				assertEquals(mwd.getMagneticWindDirection(), ((MWDSentence)s).getMagneticWindDirection(), 2.0);
-				okMWD = true;
-			}
-		}
-		assertTrue(okMWV);
-		assertTrue(okMWD);
-	
+		MWDSentence mwd = (MWDSentence)ws.find("MWD", 0, null);
+		assertEquals(TalkerId.P, mwd.getTalkerId());
+		assertEquals(5, mwd.getWindSpeedKnots(), 0.05);
+		assertEquals(90, mwd.getMagneticWindDirection(), 0.5);
 	}
 
 	

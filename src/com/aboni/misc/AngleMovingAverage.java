@@ -6,17 +6,17 @@ import java.util.List;
 
 public class AngleMovingAverage implements MovingAverage {
 
-	private List<Sample> samples;
+	private final List<Sample> samples;
 	private double mAvg = Double.NaN; 
 	
 	private long period = 60 * 1000;
 	
 	public AngleMovingAverage() {
-		samples = new LinkedList<Sample>();
+		samples = new LinkedList<>();
 	}
 	
 	public AngleMovingAverage(long period) {
-		samples = new LinkedList<Sample>();
+		samples = new LinkedList<>();
 		this.period = period;
 	}
 	

@@ -24,6 +24,7 @@ import net.sf.marineapi.nmea.sentence.Sentence;
 import net.sf.marineapi.nmea.util.DataStatus;
 import net.sf.marineapi.nmea.util.Side;
 
+@SuppressWarnings("unused")
 public interface VWRSentence extends Sentence {
 
 	/**
@@ -47,18 +48,12 @@ public interface VWRSentence extends Sentence {
 	 */
 	DataStatus getStatus();
 
-	/**
-	 * Tells if the angle is relative or true.
-	 * 
-	 * @return True if relative to true north, otherwise false (relative to bow)
-	 */
 	Side getSide();
 
 	/**
 	 * Set wind angle.
 	 * 
 	 * @param angle Wind angle in degrees.
-	 * @see #setTrue(boolean)
 	 */
 	void setAngle(double angle);
 
@@ -76,11 +71,5 @@ public interface VWRSentence extends Sentence {
 	 */
 	void setStatus(DataStatus status);
 
-	/**
-	 * Set angle to relative or true.
-	 * 
-	 * @param isTrue True for true angle, false for relative to bow.
-	 * @see #setAngle(double)
-	 */
 	void setSide(Side side);
 }

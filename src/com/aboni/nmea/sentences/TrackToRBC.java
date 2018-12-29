@@ -1,7 +1,6 @@
 package com.aboni.nmea.sentences;
 
 import com.aboni.geo.Track;
-
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.RMBSentence;
 import net.sf.marineapi.nmea.sentence.SentenceId;
@@ -10,10 +9,11 @@ import net.sf.marineapi.nmea.util.DataStatus;
 import net.sf.marineapi.nmea.util.Direction;
 import net.sf.marineapi.nmea.util.Waypoint;
 
+@SuppressWarnings("unused")
 public class TrackToRBC {
 
-	private Track track;
-	private TalkerId talkerId;
+	private final Track track;
+	private final TalkerId talkerId;
 	
 	public TrackToRBC(Track t, TalkerId id) {
 		track = t;

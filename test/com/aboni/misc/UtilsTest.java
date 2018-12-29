@@ -1,12 +1,25 @@
 package com.aboni.misc;
 
-import static org.junit.Assert.*;
-
+import net.sf.marineapi.nmea.util.CompassPoint;
 import org.junit.Test;
 
-import net.sf.marineapi.nmea.util.CompassPoint;
+import static org.junit.Assert.assertEquals;
 
 public class UtilsTest {
+
+	@Test
+	public void testRoundingDown() {
+		double d = 5.7222223443;
+		double d1 = Utils.round(d, 3);
+		assertEquals(5.722, d1, 0.0005);
+	}
+
+	@Test
+	public void testRoundingUp() {
+		double d = 5.7272258;
+		double d1 = Utils.round(d, 2);
+		assertEquals(5.73, d1, 0.005);
+	}
 
 	@Test
 	public void testFormatLL_LonWest() {

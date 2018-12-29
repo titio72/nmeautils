@@ -1,12 +1,12 @@
 package com.aboni.nmea.sentences;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-
 import net.sf.marineapi.nmea.sentence.Checksum;
 import net.sf.marineapi.nmea.sentence.TalkerId;
 import net.sf.marineapi.nmea.util.CompassPoint;
 import net.sf.marineapi.nmea.util.Position;
+
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 public class XMCParser implements XMCSentence {
 
@@ -14,7 +14,7 @@ public class XMCParser implements XMCSentence {
 	private Position average;
 	private Position median;
 	private boolean anchor;
-	private DecimalFormat nf;
+	private final DecimalFormat nf;
 	
 	public XMCParser(TalkerId tlk) {
 		tid = tlk;

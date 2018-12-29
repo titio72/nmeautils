@@ -1,9 +1,5 @@
 package com.aboni.nmea.sentences;
 
-import java.text.DecimalFormat;
-import java.util.Calendar;
-import java.util.TimeZone;
-
 import net.sf.marineapi.nmea.sentence.RMCSentence;
 import net.sf.marineapi.nmea.sentence.Sentence;
 import net.sf.marineapi.nmea.sentence.ZDASentence;
@@ -11,10 +7,14 @@ import net.sf.marineapi.nmea.util.DataStatus;
 import net.sf.marineapi.nmea.util.Date;
 import net.sf.marineapi.nmea.util.Time;
 
+import java.text.DecimalFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
+
 public class NMEATimestampExtractor {
 
-	private static DecimalFormat fh = new DecimalFormat("+00");
-	private static DecimalFormat fm = new DecimalFormat("00");
+	private static final DecimalFormat fh = new DecimalFormat("+00");
+	private static final DecimalFormat fm = new DecimalFormat("00");
 
 	private static class DateAndTime {
 		Time t = null;
@@ -69,6 +69,7 @@ public class NMEATimestampExtractor {
         TimeZone tz = TimeZone.getTimeZone(h);
 
         Calendar c = Calendar.getInstance(tz);
+		//noinspection MagicConstant
 		c.set(dt.d.getYear(), dt.d.getMonth()-1, dt.d.getDay(), dt.t.getHour(), dt.t.getMinutes(), (int)dt.t.getSeconds());
 		c.set(Calendar.MILLISECOND, (int)((dt.t.getSeconds()-(int)dt.t.getSeconds()))*1000);
 

@@ -2,6 +2,7 @@ package com.aboni.nmea.sentences;
 
 import net.sf.marineapi.nmea.sentence.Sentence;
 
+@SuppressWarnings("unused")
 public interface XXXPSentence extends Sentence {
 
     double getMagX();

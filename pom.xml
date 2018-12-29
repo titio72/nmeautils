@@ -5,14 +5,15 @@
 	<artifactId>NMEAUtils</artifactId>
 	<version>0.1.1-SNAPSHOT</version>
 	<build>
+		<testSourceDirectory>test</testSourceDirectory>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.5.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -59,7 +60,7 @@
 		<connection>scm:git:git@github.com:titio72/mmeautils</connection>
 		<developerConnection>scm:git:git@github.com:titio72/mmeautils</developerConnection>
 	</scm>
-	<properties>
+	<!--properties>
     	<skipTests>true</skipTests>
-  	</properties>
+  	</properties-->
 </project>

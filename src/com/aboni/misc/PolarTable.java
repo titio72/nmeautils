@@ -1,15 +1,10 @@
 package com.aboni.misc;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class PolarTable {
 
 	/*
@@ -99,7 +94,7 @@ public class PolarTable {
 	
 	public void load(Reader r) throws IOException {
 		BufferedReader br = new BufferedReader(r);
-		int[] wind_speeds = null;
+		int[] wind_speeds;
 
 		String line = br.readLine();
 		while (line!=null && !line.startsWith("angle")) {
@@ -122,13 +117,13 @@ public class PolarTable {
 	/**
 	 *  If last valid angle is not 180 copy the last valid speeds to 180.
 	 *  This is to have the value for the run.
-	 * @param wind_speeds
-	 * @param lastValidAngle
+	 * @param wind_speeds The wind speeds.
+	 * @param lastValidAngle The last valid angle (the closest to 180).
 	 */
 	private void fillRunSpeeds(int[] wind_speeds, int lastValidAngle) {
 		if (lastValidAngle>=0 && lastValidAngle!=180) {
-			for (int i = 0; i<wind_speeds.length; i++) {
-				setRawSpeed(180,wind_speeds[i], getRawSpeed(lastValidAngle, wind_speeds[i]));
+			for (int wind_speed : wind_speeds) {
+				setRawSpeed(180, wind_speed, getRawSpeed(lastValidAngle, wind_speed));
 			}
 		}
 	}
@@ -147,7 +142,9 @@ public class PolarTable {
 					setRawSpeed(angle, wind_speeds[i-1], speed);
 					if (speed>0) lastValidAngle = angle;
 					if (speed>0 && firstValidAngle==-1) firstValidAngle = angle;
-				} catch (Exception e) {}
+				} catch (NumberFormatException ignored) {
+					// skip the invalid speed
+				}
 			}
 		}
 		return lastValidAngle;
@@ -169,8 +166,8 @@ public class PolarTable {
     
 	private void interpolateColumns() {
 		for (int i = 0; i<maxWindSpeed; i++) {
-			List<Float> angles = new LinkedList<Float>();
-			List<Float> bspeeds = new LinkedList<Float>();
+			List<Float> angles = new LinkedList<>();
+			List<Float> bspeeds = new LinkedList<>();
 			for (int angle = 0; angle<=180; angle++) {
 				float speed = speeds[angle][i];
 				if (speed!=0.0f) {
@@ -187,14 +184,14 @@ public class PolarTable {
 	private void interpolateRows() {
 		reachAngle = 0;
 		for (int angle = 0; angle<=180; angle++) {
-			List<Float> ws = new LinkedList<Float>();
-			List<Float> bs = new LinkedList<Float>();
+			List<Float> ws = new LinkedList<>();
+			List<Float> bs = new LinkedList<>();
 			ws.add(0f);
 			bs.add(0f);
 			boolean not_zero = false;
 			for (int i = 0; i<maxWindSpeed; i++) {
 				if (speeds[angle][i]>0) {
-					not_zero |= true;
+					not_zero = true;
 					ws.add((float)i+1);
 					bs.add(speeds[angle][i]);
 				}
@@ -217,10 +214,7 @@ public class PolarTable {
 	
 	private void interpolateRow(List<Float> ws, List<Float> bs, float[][] ss, int angle) {
 
-		List<Float> X = ws;
-		List<Float> Y = bs;
-		
-		SplineInterpolation spline = SplineInterpolation.createMonotoneCubicSpline(X, Y);
+		SplineInterpolation spline = SplineInterpolation.createMonotoneCubicSpline(ws, bs);
 		
 		for (int wind = 1; wind<=maxWindSpeed; wind++) {
 			setRawSpeed(angle, wind, spline.interpolate(wind)); 
@@ -229,10 +223,7 @@ public class PolarTable {
 	
 	private void interpolate(List<Float> a, List<Float> s, float[][] ss, int col) {
 
-		List<Float> X = a;
-		List<Float> Y = s;
-		
-		SplineInterpolation spline = SplineInterpolation.createMonotoneCubicSpline(X, Y);
+		SplineInterpolation spline = SplineInterpolation.createMonotoneCubicSpline(a, s);
 		
 		int fangle = (int)a.get(0).floatValue();
 		int langle = (int)a.get(a.size()-1).floatValue();
@@ -250,13 +241,13 @@ public class PolarTable {
 			w.write("\n");
 			
 			for (int angle = 0; angle<=180; angle++) {
-				StringBuffer bf = new StringBuffer();
-				bf.append(""+angle);
+				StringBuilder bf = new StringBuilder();
+				bf.append(angle);
 				boolean not_zero = false;
 				for (int i = 0; i<maxWindSpeed; i++) {
 					float speed = speeds[angle][i];
 					not_zero = not_zero || speed>0f;
-					bf.append("," + String.format("%5.2f", speed));
+					bf.append(",").append(String.format("%5.2f", speed));
 				}
 				if (not_zero) { 
 					w.write(bf.toString() + "\n");

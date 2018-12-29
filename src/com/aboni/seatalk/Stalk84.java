@@ -1,13 +1,12 @@
 package com.aboni.seatalk;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 import com.aboni.misc.Utils;
-
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.Checksum;
 import net.sf.marineapi.nmea.sentence.STALKSentence;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 
 /*
@@ -44,13 +43,14 @@ import net.sf.marineapi.nmea.sentence.STALKSentence;
 
  */
 
+@SuppressWarnings("unused")
 public class Stalk84 {
 
 	public enum TURN {
 		PORT(0),
 		STARBOARD(1);
 		
-		int value;
+		final int value;
 		TURN(int v) {value = v;}
 	}
 	
@@ -60,7 +60,7 @@ public class Stalk84 {
 		STATUS_WINDVANE(0x4), 
 		STATUS_TRACK(0x8); 
 
-		int value;
+		final int value;
 		STATUS(int v) {value = v;}
 		static STATUS fromValue(int i) {
 			switch (i) {
@@ -79,7 +79,7 @@ public class Stalk84 {
 		ERROR_OFF_COURSE(0x4),
 		ERROR_WIND_SHIFT(0x8);		
 
-		int value;
+		final int value;
 		ERROR(int v) {value = v;}
 		static ERROR fromValue(int i) {
 			switch (i) {
@@ -161,12 +161,12 @@ public class Stalk84 {
 	
 	public Stalk84(String...d) {
 		String[] data = new String[9];
-		sentence = "$STALK,";
+		StringBuilder b = new StringBuilder("$STALK,");
 		for (int i=0; i<d.length; i++) {
 			data[i] = d[i];
-			sentence += "," + d[i];
+			b.append(",").append(d[i]);
 		}
-		
+		sentence = b.toString();
 		if (!data[0].equals("84")) throw new RuntimeException("Type is not 84");
 		calc(data);
 	}

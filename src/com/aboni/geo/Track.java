@@ -2,14 +2,15 @@ package com.aboni.geo;
 
 import net.sf.marineapi.nmea.util.Position;
 
+@SuppressWarnings("unused")
 public class Track {
-    private Position start;
-    private Position end;
+    private final Position start;
+    private final Position end;
     private Position pos;
     private double vmg;
     private double xte;
     private Course toDest;
-    private Course trip; 
+    private final Course trip;
     
     public Track(Position start, Position end) {
         this.start = start;
@@ -69,20 +70,6 @@ public class Track {
         return (xte>0)?PORT:STARBOARD;
     }
     
-    /**
-     * Returns (signed) distance from ‘this’ point to great circle defined by start-point and end-point.
-     *
-     * @param   {LatLon} pathStart - Start point of great circle path.
-     * @param   {LatLon} pathEnd - End point of great circle path.
-     * @param   {number} [radius=6371e3] - (Mean) radius of earth (defaults to radius in metres).
-     * @returns {number} Distance to great circle (-ve if to left, +ve if to right of path).
-     *
-     * @example
-     *   var pCurrent = new LatLon(53.2611, -0.7972);
-     *   var p1 = new LatLon(53.3206, -1.7297);
-     *   var p2 = new LatLon(53.1887,  0.1334);
-     *   var d = pCurrent.crossTrackDistanceTo(p1, p2);  // -307.5 m
-     */
     public static double crossTrackError(Position pCurrent, Position pStart, Position pEnd) {
         double R = 6371000; // average earth radius - should be ok at our latitudes
         Course cSE = new Course(pStart, pEnd);
@@ -92,5 +79,5 @@ public class Track {
         double b12 = Math.toRadians(cSE.getCOG()); //pathStart.bearingTo(pathEnd).toRadians();
         double axt = Math.asin(Math.sin(a13) * Math.sin(b13-b12));
         return axt * R;
-    };
+    }
 }

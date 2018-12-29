@@ -47,7 +47,7 @@ public class SplineInterpolation {
 	 *            The X component of the control points, strictly increasing.
 	 * @param y
 	 *            The Y component of the control points
-	 * @return
+	 * @return A SplineInterpolation object
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if the X or Y arrays are null, have different lengths or have fewer than 2 values.

@@ -1,5 +1,6 @@
 package com.aboni.misc;
 
+@SuppressWarnings("unused")
 public interface MovingAverage {
 
 	void setPeriod(long period);

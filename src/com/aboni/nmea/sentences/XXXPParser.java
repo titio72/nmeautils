@@ -3,6 +3,7 @@ package com.aboni.nmea.sentences;
 import net.sf.marineapi.nmea.parser.SentenceParser;
 import net.sf.marineapi.nmea.sentence.TalkerId;
 
+@SuppressWarnings("unused")
 public class XXXPParser extends SentenceParser implements XXXPSentence {
 
 	public static final String NMEA_SENTENCE_TYPE = "XXP";

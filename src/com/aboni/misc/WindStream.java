@@ -1,24 +1,17 @@
 package com.aboni.misc;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-
 import com.aboni.nmea.sentences.NMEASentenceItem;
 import com.aboni.nmea.sentences.VWRSentence;
-
 import net.sf.marineapi.nmea.parser.SentenceFactory;
-import net.sf.marineapi.nmea.sentence.HDGSentence;
-import net.sf.marineapi.nmea.sentence.HDMSentence;
-import net.sf.marineapi.nmea.sentence.MWDSentence;
-import net.sf.marineapi.nmea.sentence.MWVSentence;
-import net.sf.marineapi.nmea.sentence.Sentence;
-import net.sf.marineapi.nmea.sentence.SentenceId;
-import net.sf.marineapi.nmea.sentence.TalkerId;
-import net.sf.marineapi.nmea.sentence.VHWSentence;
+import net.sf.marineapi.nmea.sentence.*;
 import net.sf.marineapi.nmea.util.DataStatus;
 import net.sf.marineapi.nmea.util.Side;
 import net.sf.marineapi.nmea.util.Units;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
+@SuppressWarnings("unused")
 public class WindStream {
 
 	public static class Conf {
@@ -26,9 +19,12 @@ public class WindStream {
 		public boolean forceCalcTrue = false;
 		public boolean smoothWind = false;
 		public double windSmoothingFactor = 0.5;
+		public boolean skipFirstCalculation = true;
+
+		public Conf() {}
 	}
 	
-	private NMEATrueWind windCalc;
+	private final NMEATrueWind windCalc;
 	
 	private long lastMWV_T;
 	private long lastMWD;
@@ -39,7 +35,7 @@ public class WindStream {
 	private static final long SEND_THROTTLING_MWD = 900;
 
 	private Conf conf;
-	private TalkerId tid;
+	private final TalkerId tid;
 		
 	public WindStream(TalkerId tid) {
 		this(tid, new Conf());
@@ -62,12 +58,12 @@ public class WindStream {
 	}
 
 	private boolean shallCalcMWV_T(long now) {
-		if (lastMWV_T==0) lastMWV_T = now;
+		if (lastMWV_T==0 && conf.skipFirstCalculation) lastMWV_T = now;
 		return (now - lastMWV_T) > CALC_THRESHOLD;
 	}
 	
 	private boolean shallCalcMWD(long now) {
-		if (lastMWD==0) lastMWD = now;
+		if (lastMWD==0 && conf.skipFirstCalculation) lastMWD = now;
 		return (now - lastMWD) > CALC_THRESHOLD && (now - lastSentMWD) > SEND_THROTTLING_MWD;
 	}
 	
@@ -76,35 +72,43 @@ public class WindStream {
 	}
 	
 	public void onSentence(Sentence s, long time) {
-		if (s.getSentenceId().equals(SentenceId.VWR.name())) {
-			if (conf.useVWR) {
-				handleVWR(s, time);
-			}
-		} else if (s.getSentenceId().equals(SentenceId.MWV.name())) {
-			if (!conf.useVWR) {
-				MWVSentence mwv = (MWVSentence)s;
-				if (mwv.isTrue())  {
-					handleTrueMWV(time, mwv);
-				} else {
-					handleAppMWV(time, mwv);
+		switch (s.getSentenceId()) {
+			case "VWR":
+				if (conf.useVWR) {
+					handleVWR(s, time);
 				}
-			}
-		} else if (s.getSentenceId().equals(SentenceId.MWD.name())) {
-			handleMWD(s, time);
-		} else if (s.getSentenceId().equals(SentenceId.VHW.name())) {
-			VHWSentence vhw = (VHWSentence)s;
-			windCalc.setSpeed(vhw, time);
-			onProcSentence(s, time);
-		} else if (s.getSentenceId().equals(SentenceId.HDG.name())) {
-			HDGSentence h = (HDGSentence)s;
-			windCalc.setHeading(h, time);
-			onProcSentence(s, time);
-		} else if (s.getSentenceId().equals(SentenceId.HDM.name())) {
-			HDMSentence h = (HDMSentence)s;
-			windCalc.setHeading(h, time);
-			onProcSentence(s, time);
-		} else {
-			onProcSentence(s, time);
+				break;
+			case "MWV":
+				if (!conf.useVWR) {
+					MWVSentence mwv = (MWVSentence) s;
+					if (mwv.isTrue()) {
+						handleTrueMWV(time, mwv);
+					} else {
+						handleAppMWV(time, mwv);
+					}
+				}
+				break;
+			case "MWD":
+				handleMWD(s, time);
+				break;
+			case "VHW":
+				VHWSentence vhw = (VHWSentence) s;
+				windCalc.setSpeed(vhw, time);
+				onProcSentence(s, time);
+				break;
+			case "HDG":
+				HDGSentence hdg = (HDGSentence) s;
+				windCalc.setHeading(hdg, time);
+				onProcSentence(s, time);
+				break;
+			case "HDM":
+				HDMSentence hdm = (HDMSentence) s;
+				windCalc.setHeading(hdm, time);
+				onProcSentence(s, time);
+				break;
+			default:
+				onProcSentence(s, time);
+				break;
 		}
 	}
 
@@ -146,7 +150,9 @@ public class WindStream {
 		windCalc.setWind(mwv, time);
 		if (shallCalcMWV_T(time)) {
 			windCalc.calcMWVSentence(time);
-			onProcSentence(windCalc.getTrueWind(), time);
+			if (windCalc.getTrueWind()!=null) {
+				onProcSentence(windCalc.getTrueWind(), time);
+			}
 			if (shallCalcMWD(time)) {
 				windCalc.calcMWDSentence(time);
 				onProcSentence(windCalc.getWind(), time);
