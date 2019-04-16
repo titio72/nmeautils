@@ -30,8 +30,13 @@ public class NMEAUtils {
         return null;
     }
 
+    /**
+     * Extract the position form a RMC sentence if and anly if the sentence is valid and it status is ACTIVE.
+     * @param rmc The sentence the position must be extracted from.
+     * @return The position.
+     */
     public static Position getPosition(RMCSentence rmc) {
-        if (rmc.isValid() && rmc.getStatus()==DataStatus.ACTIVE) {
+        if (rmc!=null && rmc.isValid() && rmc.getStatus()==DataStatus.ACTIVE) {
             return rmc.getPosition();
         } else {
             return null;

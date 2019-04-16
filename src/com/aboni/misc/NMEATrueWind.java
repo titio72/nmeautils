@@ -15,7 +15,7 @@ public class NMEATrueWind {
 	private final Event<MWVSentence> eAWind = new Event<>(null, 0);
 	private final Event<MWVSentence> eTWind = new Event<>(null, 0);
 	private final Event<MWDSentence> eWind = new Event<>(null, 0);
-	
+
 	private final TalkerId id;
 	
 	public NMEATrueWind(TalkerId id) {
@@ -33,11 +33,11 @@ public class NMEATrueWind {
 	}
 
 	public void calcMWDSentence(long time) {
-		if (eHeadingG!=null && eHeadingG.event!=null) {
+		if (eHeadingG.event!=null) {
 			calcMWDSentence(time, eHeadingG.event);
-		} else if (eHeadingM!=null && eHeadingM.event!=null) {
+		} else if (eHeadingM.event!=null) {
 			calcMWDSentence(time, eHeadingM.event);
-		} else if (eSpeed!=null && eSpeed.event!=null) {
+		} else if (eSpeed.event!=null) {
 			calcMWDSentence(time, eSpeed.event);
 		}
 	}
@@ -68,7 +68,7 @@ public class NMEATrueWind {
     private static double getTrueHeading(HeadingSentence h) {
 		double dev = 0.0, var = 0.0;
 		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception ignored) {}
-		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getVariation(); } catch (Exception ignored) {}
+		try { if (h instanceof HDGSentence) var = ((HDGSentence)h).getVariation(); } catch (Exception ignored) {}
 		try {
 			return h.getHeading() + var + dev;
 		} catch (DataNotAvailableException e) {
@@ -99,9 +99,6 @@ public class NMEATrueWind {
 	}
 	
 	public void calcMWVSentence(long time) {
-		/*
-		 * Check if the wind and heading are close enough to make sense summing them up.
-		 */
 		if (eSpeed.event!=null && eAWind.event!=null) {
 			MWVSentence mwvt = (MWVSentence) SentenceFactory.getInstance().createParser(id, SentenceId.MWV);
 			double s = eSpeed.event.getSpeedKnots();
@@ -161,11 +158,6 @@ public class NMEATrueWind {
 		return eSpeed.getAge(now);
 	}
 	
-	/**
-	 * Set the wind information.
-	 * @param s		The wind info
-	 * @param time	The timestamp of the wind sample
-	 */
 	public void setWind(MWVSentence s, long time) {
 		if (s!=null) {
 			if (s.isTrue()) {

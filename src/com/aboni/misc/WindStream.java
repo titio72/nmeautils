@@ -155,7 +155,9 @@ public class WindStream {
 			}
 			if (shallCalcMWD(time)) {
 				windCalc.calcMWDSentence(time);
-				onProcSentence(windCalc.getWind(), time);
+				if (windCalc.getWind()!=null) {
+					onProcSentence(windCalc.getWind(), time);
+				}
 			}
 		}
 	}
@@ -185,7 +187,9 @@ public class WindStream {
 			onProcSentence(mwv, time);
 			if (shallCalcMWD(time)) {
 				windCalc.calcMWDSentence(time);
-				onProcSentence(windCalc.getWind(), time);
+				if (windCalc.getWind()!=null) {
+					onProcSentence(windCalc.getWind(), time);
+				}
 			}
 		}
 	}

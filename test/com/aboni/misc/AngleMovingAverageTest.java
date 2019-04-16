@@ -1,8 +1,8 @@
 package com.aboni.misc;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class AngleMovingAverageTest {
 
@@ -62,7 +62,7 @@ public class AngleMovingAverageTest {
 	@Test
 	public void testCrossNorth330_030() {
 		MovingAverage m = new AngleMovingAverage(10000);
-		double a = 330;
+		double a;
 		for (long i = 0; i<1000; i++) {
 			a = Utils.normalizeDegrees0_360(330.0 + 60.0*((double)i/1000.0));
 			m.setSample(i * 100, a);

@@ -1,6 +1,5 @@
 package com.aboni.misc;
 
-import com.aboni.misc.WindStream.Conf;
 import com.aboni.nmea.sentences.NMEASentenceFilter;
 import com.aboni.nmea.sentences.VWRSentence;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
@@ -10,29 +9,36 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class WindStreamTest {
 
-	private class WS extends WindStream {
+	private static class WS extends WindStream {
 
 		List<Event<Sentence>> output = new ArrayList<>();
 		
 		WS(boolean useVWR, boolean forceCalcTrue) {
 			// use P to distinguish internally generated events
-			super(TalkerId.P, WindStreamTest.getConf(useVWR, forceCalcTrue));
+			super(TalkerId.P, getConf(useVWR, forceCalcTrue));
 		}
-		
+
+		static WindStream.Conf getConf(boolean useVWR, boolean forceCalcTrue) {
+			WindStream.Conf c = new Conf();
+			c.useVWR = useVWR;
+			c.forceCalcTrue = forceCalcTrue;
+			c.skipFirstCalculation = false;
+			return c;
+		}
+
 		@Override
 		protected void onProcSentence(Sentence s, long time) {
 			assertNotNull(s);
 			output.add(new Event<>(s, time));
 		}
 
-		
 		List<Event<Sentence>> getOutput() {
 			return output;
 		}
@@ -63,207 +69,200 @@ public class WindStreamTest {
 			}
 			return null;
 		}
+
+		/**
+		 * All the occurrences of a type of sentences.
+		 * @param type The type of the senteces to find.
+		 * @param filter Additional optional filter.
+		 * @return A collection of all the sentences of the ghiven type.
+		 */
+		Collection<Sentence> findAll(final String type, NMEASentenceFilter filter) {
+			List<Sentence> res = new ArrayList<>();
+			for (Event<Sentence> e: output) {
+				if (e!=null && e.event!=null && type.equals(e.event.getSentenceId())) {
+					if (filter==null || filter.match(e.event, null)) {
+						res.add(e.event);
+					}
+				}
+			}
+			return res;
+		}
+
+		MWVSentence sendMWV(boolean trueWind, double speed, double angle, long time) {
+			MWVSentence s = (MWVSentence)SentenceFactory.getInstance().createParser(TalkerId.II, SentenceId.MWV);
+			s.setAngle(angle);
+			s.setSpeed(speed);
+			s.setTrue(trueWind);
+			this.onSentence(s, time);
+			return s;
+		}
+
+		MWDSentence sendMWD(double speed, double angle, long time) {
+			MWDSentence s = (MWDSentence)SentenceFactory.getInstance().createParser(TalkerId.II, SentenceId.MWD);
+			s.setMagneticWindDirection(angle);
+			s.setWindSpeedKnots(speed);
+			this.onSentence(s, time);
+			return s;
+		}
+
+		VHWSentence sendVHW(double speed, double angle, long time) {
+			VHWSentence s = (VHWSentence)SentenceFactory.getInstance().createParser(TalkerId.II, SentenceId.VHW);
+			//s.setHeading(angle);
+			s.setMagneticHeading(angle);
+			s.setSpeedKnots(speed);
+			this.onSentence(s, time);
+			return s;
+		}
+
+		HDGSentence sendHDG(double heading, long time) {
+			HDGSentence s = (HDGSentence)SentenceFactory.getInstance().createParser(TalkerId.II, SentenceId.HDG);
+			//s.setDeviation(0.0);
+			//s.setVariation(0.0);
+			s.setHeading(heading);
+			this.onSentence(s, time);
+			return s;
+		}
+
+		VWRSentence sendVWR(double speed, double angle, long time) {
+			VWRSentence s = (VWRSentence)SentenceFactory.getInstance().createParser(TalkerId.II, SentenceId.VWR);
+			angle = Utils.normalizeDegrees180_180(angle);
+			s.setAngle(Math.abs(angle));
+			s.setSide(angle<0?Side.PORT:Side.STARBOARD);
+			s.setSpeed(speed);
+			this.onSentence(s, time);
+			return s;
+		}
+
 	}
-	
+
+	private long t0;
+
 	@Before
 	public void setUp() {
+		t0 = (System.currentTimeMillis()/86400)*86400;
 	}
 
-	private static Conf getConf(boolean useVWR, boolean forceCalcTrue) {
-		Conf c = new Conf();
-		c.useVWR = useVWR;
-		c.forceCalcTrue = forceCalcTrue;
-		c.skipFirstCalculation = false;
-		return c;
-	}
-	
-	private static VHWSentence getVHW(double heading, double speed) {
-		VHWSentence s = (VHWSentence)SentenceFactory.getInstance().createParser(TalkerId.II, SentenceId.VHW);
-		s.setHeading(heading);
-		s.setMagneticHeading(heading);
-		s.setSpeedKnots(speed);
-		return s;
-	}
-	
-	private static VWRSentence getVWR(double direction, double speed) {
-		VWRSentence s = (VWRSentence)SentenceFactory.getInstance().createParser(TalkerId.II, SentenceId.VWR);
-		direction = Utils.normalizeDegrees180_180(direction);
-		s.setAngle(Math.abs(direction));
-		s.setSide(direction<0?Side.PORT:Side.STARBOARD);
-		s.setSpeed(speed);
-		return s;
-	}
-	
-	private static MWVSentence getMWV(double direction, double speed, boolean t) {
-		MWVSentence s = (MWVSentence)SentenceFactory.getInstance().createParser(TalkerId.II, SentenceId.MWV);
-		s.setAngle(direction);
-		s.setSpeed(speed);
-		s.setTrue(t);
-		return s;
-	}
-	
-	private static MWDSentence getMWD(double direction, double speed) {
-		MWDSentence s = (MWDSentence)SentenceFactory.getInstance().createParser(TalkerId.II, SentenceId.MWD);
-		s.setMagneticWindDirection(direction);
-		s.setTrueWindDirection(direction);
-		s.setWindSpeedKnots(speed);
-		return s;
+	private long incT(long step) {
+		t0 += step;
+		return t0;
 	}
 
-	private static HDGSentence getHDG(double heading) {
-		HDGSentence s = (HDGSentence)SentenceFactory.getInstance().createParser(TalkerId.II, SentenceId.HDG);
-		s.setDeviation(0.0);
-		s.setVariation(0.0);
-		s.setHeading(heading);
-		return s;
-	}
-	
-	
 	@Test
-	public void testCalcTrueAndAbsoluteWind() {
+	public void test_CalcMWVT_MWD() {
+		// MWV_R & VHW are given annd valid
+		// MWV_T & MWD are not give
+
 		WS ws = new WS(false, false);
-		VHWSentence vhw = getVHW(0, 5);
-		MWVSentence mwv_r = getMWV(45, 5 * Math.sqrt(2), false);
-		HDGSentence hd = getHDG(0);
-		
-		long t0 = (System.currentTimeMillis()/86400)*86400;
-		ws.onSentence(hd, t0 + 50);
-		ws.onSentence(vhw, t0 + 50);
-		ws.onSentence(mwv_r, t0 + 100);
+
+		ws.sendVHW(5.0, 0.0, incT(50));
+		ws.sendMWV(false, 5 * Math.sqrt(2), 45.0, incT(100));
 		ws.dump();
 
-		MWVSentence mwv_t = (MWVSentence)ws.find("MWV", 0, (Sentence s, String src)->{ return ((MWVSentence)s).isTrue(); });
+		MWVSentence mwv_t = (MWVSentence)ws.find("MWV", 0, (Sentence s, String src)-> ((MWVSentence)s).isTrue());
 		assertNotNull(mwv_t);
 		assertEquals(TalkerId.P, mwv_t.getTalkerId());
-		assertEquals(mwv_t.getSpeed(), 5, 0.05 /* allow 0.05 knots of difference*/ );
-		assertEquals(mwv_t.getAngle(), 90, 0.5 /* allow 0.5 degree for rounding issues*/);
+		assertEquals(5.0, mwv_t.getSpeed(),0.05 /* allow 0.05 knots of difference*/ );
+		assertEquals(90.0, mwv_t.getAngle(), 0.5 /* allow 0.5 degree for rounding issues*/);
 
 		MWDSentence mwd = (MWDSentence)ws.find("MWD", 0, null);
 		assertEquals(TalkerId.P, mwd.getTalkerId());
 		assertEquals(5, mwd.getWindSpeedKnots(), 0.05);
 		assertEquals(90, mwd.getMagneticWindDirection(), 0.5);
+
+		//check only one calc-ed sentence is produced
+		assertNull(ws.find("MWD", 1, null));
+		assertNull(ws.find("MWV", 1, (Sentence s, String src)-> ((MWVSentence)s).isTrue()));
 	}
 
-	
-	
 	@Test
-	public void testNoMWD_VHW4Heading() {
-		WS ws = new WS(false, false);
-		VHWSentence vhw = getVHW(0, 5);
-		MWVSentence mwv_r = getMWV(45, 5 * Math.sqrt(2), false);
-		MWVSentence mwv_t = getMWV(90, 5, true);
-		
-		MWDSentence mwd = getMWD(90, 5);
-		
-		// run the stream for a few seconds
-		long time = 0;
-		for (int i = 0; i<10; i++) {
-			time += 1000;
-			ws.onSentence(vhw, time + 50);
-			ws.onSentence(mwv_r, time + 100);
-			ws.onSentence(mwv_t, time + 150);
-		}
+	public void test_CalcMWVT_MWD_when_MWVT_Is_Too_Old() {
+		// MWV_R & VHW are given annd valid
+		// MWV_T is given but old
 
-		time += 1000;
+		WS ws = new WS(false, false);
+
+		// send the "old" MWV_T and reset the output
+		ws.sendMWV(true, 5.0, 0.0, incT(50));
 		ws.reset();
-		ws.onSentence(vhw, time + 50);
-		ws.onSentence(mwv_r, time + 100);
-		ws.onSentence(mwv_t, time + 150);
-	
 
-		boolean ok = false;
-		Iterator<Event<Sentence>> i = ws.getOutput().iterator();
-		for (; i.hasNext(); ) {
-			Sentence s = i.next().event;
-			if (s instanceof MWDSentence) {
-				assertEquals(TalkerId.P, s.getTalkerId());
-				assertEquals(mwd.getWindSpeedKnots(), ((MWDSentence)s).getWindSpeedKnots(), 0.001);
-				assertEquals(mwd.getMagneticWindDirection(), ((MWDSentence)s).getMagneticWindDirection(), 0.001);
-				ok = true;
-			}
-		}
-		assertTrue(ok);
-	
-	}
-	
-	@Test
-	public void testNoMWD_InvalidVHW() {
-		WS ws = new WS(false, false);
-		VHWSentence vhw = getVHW(180, 0);
-		MWVSentence mwv_r = getMWV(45, 5 * Math.sqrt(2), false);
-		MWVSentence mwv_t = getMWV(90, 5, true);
-		HDGSentence hd = getHDG(0);
-		
-		MWDSentence mwd = getMWD(90, 5);
-		
-		// run the stream for a few seconds
-		long time = 0;
-		for (int i = 0; i<10; i++) {
-			time += 1000;
-			ws.onSentence(hd, time + 50);
-			ws.onSentence(vhw, time + 50);
-			ws.onSentence(mwv_r, time + 100);
-			ws.onSentence(mwv_t, time + 150);
-		}
+		ws.sendVHW(5.0, 0.0, incT(10050) /*add 10 seconds*/);
+		ws.sendMWV(false, 5 * Math.sqrt(2), 45.0, incT(100));
+		ws.dump();
 
-		time += 1000;
-		ws.reset();
-		ws.onSentence(hd, time + 50);
-		ws.onSentence(vhw, time + 50);
-		ws.onSentence(mwv_r, time + 100);
-		ws.onSentence(mwv_t, time + 150);
-	
+		MWVSentence mwv_t = (MWVSentence)ws.find("MWV", 0, (Sentence s, String src)-> ((MWVSentence)s).isTrue());
+		assertNotNull(mwv_t);
+		assertEquals(TalkerId.P, mwv_t.getTalkerId());
+		assertEquals(5.0, mwv_t.getSpeed(),0.05 /* allow 0.05 knots of difference*/ );
+		assertEquals(90.0, mwv_t.getAngle(), 0.5 /* allow 0.5 degree for rounding issues*/);
 
-		boolean ok = false;
-		Iterator<Event<Sentence>> i = ws.getOutput().iterator();
-		for (; i.hasNext(); ) {
-			Sentence s = i.next().event;
-			if (s instanceof MWDSentence) {
-				assertEquals(TalkerId.P, s.getTalkerId());
-				assertEquals(mwd.getWindSpeedKnots(), ((MWDSentence)s).getWindSpeedKnots(), 0.001);
-				assertEquals(mwd.getMagneticWindDirection(), ((MWDSentence)s).getMagneticWindDirection(), 0.001);
-				ok = true;
-			}
-		}
-		assertTrue(ok);
-	
+		MWDSentence mwd = (MWDSentence)ws.find("MWD", 0, null);
+		assertEquals(TalkerId.P, mwd.getTalkerId());
+		assertEquals(5, mwd.getWindSpeedKnots(), 0.05);
+		assertEquals(90, mwd.getMagneticWindDirection(), 0.5);
+
+		//check only one calc-ed sentence is produced
+		assertNull(ws.find("MWD", 1, null));
+		assertNull(ws.find("MWV", 1, (Sentence s, String src)-> ((MWVSentence)s).isTrue()));
 	}
 
 	@Test
-	public void testBase() {
-		WS ws = new WS(false, false);
-		VHWSentence vhw = getVHW(0, 5);
-		MWVSentence mwv_r = getMWV(45, 5 * Math.sqrt(2), false);
-		MWVSentence mwv_t = getMWV(90, 5, true);
-		MWDSentence mwd = getMWD(90, 5);
-		
-		long time = 1000;
-		ws.onSentence(vhw, time + 50);
-		ws.onSentence(mwv_r, time + 100);
-		ws.onSentence(mwv_t, time + 150);
-		ws.onSentence(mwd, time + 200);
+	public void test_Do_Not_Calc_MWVT_When_Given() {
+		// MWV_R, MWV_T & VHW are given annd valid
 
-		time += 1000;
-		ws.onSentence(vhw, time + 50);
-		ws.onSentence(mwv_r, time + 100);
-		ws.onSentence(mwv_t, time + 150);
-		ws.onSentence(mwd, time + 200);
-	
-		Iterator<Event<Sentence>> i = ws.getOutput().iterator();
-		check(i.next(), vhw, 1050);
-		check(i.next(), mwv_r, 1100);
-		check(i.next(), mwv_t, 1150);
-		check(i.next(), mwd, 1200);
-		check(i.next(), vhw, 2050);
-		check(i.next(), mwv_r, 2100);
-		check(i.next(), mwv_t, 2150);
-		check(i.next(), mwd, 2200);
-	
-	
+		WS ws = new WS(false, false);
+		ws.sendVHW(5.0, 0.0, incT(100));
+		ws.sendMWV(true,5.0, 90.0, incT(100));
+		ws.sendMWV(false,5.0 * Math.sqrt(2), 45.0, incT(50));
+
+		MWVSentence mwv_t = (MWVSentence)ws.find("MWV", 0, (Sentence s, String src)->((MWVSentence)s).isTrue());
+		assertNotNull(mwv_t);
+		assertEquals(TalkerId.II, mwv_t.getTalkerId());
+
+		assertNull(ws.find("MWV", 1, (Sentence s, String src)->((MWVSentence)s).isTrue()));
 	}
-	
-	private static void check(Event<Sentence> e, Sentence s, long t) {
-		assertEquals(t, e.timestamp);
-		assertEquals(s, e.event); 
+
+	@Test
+	public void test_Calc_MWD_When_MWVT_Is_Given() {
+		// MWV_R, MWV_T & VHW are given annd valid
+		// MWD is not given
+
+		WS ws = new WS(false, false);
+		ws.sendVHW(5.0, 0.0, incT(100));
+		ws.sendMWV(true,5.0, 90.0, incT(100));
+
+		MWDSentence mwd = (MWDSentence)ws.find("MWD", 0, null);
+		assertNotNull(mwd);
+		assertEquals(TalkerId.P, mwd.getTalkerId());
+		assertEquals(5, mwd.getWindSpeedKnots(), 0.05);
+		assertEquals(90, mwd.getMagneticWindDirection(), 0.5);
+	}
+
+	@Test
+	public void test_Calc_MWD_When_MWVT_Is_Given_And_use_HDG() {
+		// MWV_T, HDG are given annd valid
+		// MWD is not given
+
+		WS ws = new WS(false, false);
+		ws.sendHDG(0.0,incT(100));
+		ws.sendMWV(true,5.0, 90.0, incT(100));
+
+		MWDSentence mwd = (MWDSentence)ws.find("MWD", 0, null);
+		assertNotNull(mwd);
+		assertEquals(TalkerId.P, mwd.getTalkerId());
+		assertEquals(5, mwd.getWindSpeedKnots(), 0.05);
+		assertEquals(90, mwd.getMagneticWindDirection(), 0.5);
+	}
+
+	@Test
+	public void test_cannot_calc_MWVT_MWD_Missing_VHW() {
+		// MWV_R
+		// MWV_T & VHW are nbot given is not given
+
+		WS ws = new WS(false, false);
+		ws.sendHDG(0.0,incT(100)); // may be redundant
+		ws.sendMWV(false,5.0 * Math.sqrt(2), 45.0, incT(100));
+
+		assertNull(ws.find("MWD", 0, null));
+		assertNull(ws.find("MWW", 0, (Sentence s, String src)->((MWVSentence)s).isTrue()));
 	}
 }
