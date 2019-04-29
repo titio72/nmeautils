@@ -18,7 +18,9 @@ public class Utils {
 	public static void pause(int mseconds) {
 		try {
 			Thread.sleep(mseconds);
-		} catch (Exception ignored) {}
+		} catch (InterruptedException ignored) {
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	/**
@@ -152,7 +154,14 @@ public class Utils {
 	public static String formatLL(double d, CompassPoint p) {
 		int deg = (int) Math.floor(d);
 		double min = (d-deg)*60.0;
-		String pp = (p==CompassPoint.EAST)?"E":(p==CompassPoint.WEST)?"W":(p==CompassPoint.NORTH)?"N":"S";
+		String pp;
+		switch (p) {
+			case EAST: pp = "E"; break;
+			case WEST: pp = "W"; break;
+			case NORTH: pp = "N"; break;
+			case SOUTH: pp = "S"; break;
+			default: pp = "?";
+		}
 		return  String.format("%03d", deg) + " " + String.format("%06.3f", min) +   " " + pp;
 	}
 }
