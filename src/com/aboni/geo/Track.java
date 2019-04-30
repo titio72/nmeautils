@@ -71,13 +71,13 @@ public class Track {
     }
     
     public static double crossTrackError(Position pCurrent, Position pStart, Position pEnd) {
-        double R = 6371000; // average earth radius - should be ok at our latitudes
+        double radius = 6371000; // average earth radius - should be ok at our latitudes
         Course cSE = new Course(pStart, pEnd);
         Course cSP = new Course(pStart, pCurrent);
-        double a13 = cSP.getDistance() / R;
-        double b13 = Math.toRadians(cSP.getCOG()); //pathStart.bearingTo(this).toRadians();
-        double b12 = Math.toRadians(cSE.getCOG()); //pathStart.bearingTo(pathEnd).toRadians();
+        double a13 = cSP.getDistance() / radius;
+        double b13 = Math.toRadians(cSP.getCOG());
+        double b12 = Math.toRadians(cSE.getCOG());
         double axt = Math.asin(Math.sin(a13) * Math.sin(b13-b12));
-        return axt * R;
+        return axt * radius;
     }
 }

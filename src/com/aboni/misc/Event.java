@@ -2,16 +2,16 @@ package com.aboni.misc;
 
 public class Event<C> {
 
-	C event;
+	C ev;
 	long timestamp;
 	
 	Event(C sentence, long t) {
 		timestamp = t;
-		event = sentence;
+		ev = sentence;
 	}
 	
 	long getAge(long now) {
-		if (event!=null) {
+		if (ev!=null) {
 			return now - timestamp;
 		} else {
 			return -1;
@@ -19,7 +19,7 @@ public class Event<C> {
 	}
 
 	void setEvent(C e, long time) {
-		event = e;
+		ev = e;
 		timestamp = time;
 	}
 }
