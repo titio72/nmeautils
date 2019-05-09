@@ -75,10 +75,10 @@ public class AngleMovingAverage implements MovingAverage {
 				Sample s = it.next();
 				if (s.getAge(ts)>period) {
 					double a = Utils.getNormal(mAvg, s.getValue());
-					double A = ( mAvg * samples.size() - a );
+					double aA = ( mAvg * samples.size() - a );
 					it.remove();
 					if (!samples.isEmpty()) {
-						mAvg = Utils.normalizeDegrees0_360(A / samples.size());
+						mAvg = Utils.normalizeDegrees0_360(aA / samples.size());
 					} else {
 						mAvg = Double.NaN;
 					}

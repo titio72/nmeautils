@@ -1,6 +1,9 @@
 package com.aboni.misc;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,6 +29,7 @@ public class PolarTable {
     	
     
 	public PolarTable() {
+		// no init required
 	}
 	
 	public int getMaxWindSpeed() {
@@ -94,7 +98,7 @@ public class PolarTable {
 	
 	public void load(Reader r) throws IOException {
 		BufferedReader br = new BufferedReader(r);
-		int[] wind_speeds;
+		int[] windSpeeds;
 
 		String line = br.readLine();
 		while (line!=null && !line.startsWith("angle")) {
@@ -102,12 +106,12 @@ public class PolarTable {
 		}
 		
 		if (line!=null && line.startsWith("angle")) {
-			wind_speeds = loadWindSpeeds(line);
-			maxWindSpeed = wind_speeds[wind_speeds.length-1]; 
+			windSpeeds = loadWindSpeeds(line);
+			maxWindSpeed = windSpeeds[windSpeeds.length-1];
 			speeds = new float[181][maxWindSpeed];
 			maxSpeeds = new float[maxWindSpeed];
-			int lastValidAngle = loadSpeeds(br, wind_speeds);
-			fillRunSpeeds(wind_speeds, lastValidAngle);
+			int lastValidAngle = loadSpeeds(br, windSpeeds);
+			fillRunSpeeds(windSpeeds, lastValidAngle);
 			interpolateColumns();
 			interpolateRows();
 			fillMaxSpeeds();		
@@ -117,18 +121,18 @@ public class PolarTable {
 	/**
 	 *  If last valid angle is not 180 copy the last valid speeds to 180.
 	 *  This is to have the value for the run.
-	 * @param wind_speeds The wind speeds.
+	 * @param windSpeeds The wind speeds.
 	 * @param lastValidAngle The last valid angle (the closest to 180).
 	 */
-	private void fillRunSpeeds(int[] wind_speeds, int lastValidAngle) {
+	private void fillRunSpeeds(int[] windSpeeds, int lastValidAngle) {
 		if (lastValidAngle>=0 && lastValidAngle!=180) {
-			for (int wind_speed : wind_speeds) {
+			for (int wind_speed : windSpeeds) {
 				setRawSpeed(180, wind_speed, getRawSpeed(lastValidAngle, wind_speed));
 			}
 		}
 	}
 
-	private int loadSpeeds(BufferedReader br, int[] wind_speeds) throws IOException {
+	private int loadSpeeds(BufferedReader br, int[] windSpeeds) throws IOException {
 		String line;
 		String[] v;
 		int lastValidAngle = -1;
@@ -139,7 +143,7 @@ public class PolarTable {
 			for (int i = 1; i<v.length; i++) {
 				try {
 					float speed = Float.parseFloat(v[i]);
-					setRawSpeed(angle, wind_speeds[i-1], speed);
+					setRawSpeed(angle, windSpeeds[i-1], speed);
 					if (speed>0) lastValidAngle = angle;
 					if (speed>0 && firstValidAngle==-1) firstValidAngle = angle;
 				} catch (NumberFormatException ignored) {
@@ -151,13 +155,13 @@ public class PolarTable {
 	}
 
 	private int[] loadWindSpeeds(String line) {
-		int[] wind_speeds;
+		int[] windSpeeds;
 		String[] v = line.split(",");
-		wind_speeds = new int[v.length-1];
+		windSpeeds = new int[v.length-1];
 		for (int i = 1; i<v.length; i++) {
-			wind_speeds[i-1] = (int)Float.parseFloat(v[i]); 
+			windSpeeds[i-1] = (int)Float.parseFloat(v[i]);
 		}
-		return wind_speeds;
+		return windSpeeds;
 	}
 	
 	private void setRawSpeed(int angle, int windSpeed, float v) {
@@ -182,23 +186,22 @@ public class PolarTable {
 	}
 
 	private void interpolateRows() {
-		reachAngle = 0;
 		for (int angle = 0; angle<=180; angle++) {
 			List<Float> ws = new LinkedList<>();
 			List<Float> bs = new LinkedList<>();
 			ws.add(0f);
 			bs.add(0f);
-			boolean not_zero = false;
+			boolean notZero = false;
 			for (int i = 0; i<maxWindSpeed; i++) {
 				if (speeds[angle][i]>0) {
-					not_zero = true;
+					notZero = true;
 					ws.add((float)i+1);
 					bs.add(speeds[angle][i]);
 				}
 			}
-			if (not_zero) {
-				if (reachAngle==0) reachAngle = angle;
-				interpolateRow(ws, bs, speeds, angle);
+			if (notZero) {
+				reachAngle = angle;
+				interpolateRow(ws, bs, angle);
 			}
 		}
 	}
@@ -212,7 +215,7 @@ public class PolarTable {
 	}
 	
 	
-	private void interpolateRow(List<Float> ws, List<Float> bs, float[][] ss, int angle) {
+	private void interpolateRow(List<Float> ws, List<Float> bs, int angle) {
 
 		SplineInterpolation spline = SplineInterpolation.createMonotoneCubicSpline(ws, bs);
 		
@@ -243,38 +246,19 @@ public class PolarTable {
 			for (int angle = 0; angle<=180; angle++) {
 				StringBuilder bf = new StringBuilder();
 				bf.append(angle);
-				boolean not_zero = false;
+				boolean notZero = false;
 				for (int i = 0; i<maxWindSpeed; i++) {
 					float speed = speeds[angle][i];
-					not_zero = not_zero || speed>0f;
+					notZero = notZero || speed>0f;
 					bf.append(",").append(String.format("%5.2f", speed));
 				}
-				if (not_zero) { 
+				if (notZero) {
 					w.write(bf.toString() + "\n");
 				}
 			}
 		}
 	}
 
-	public static void main(String[] args) {
-		try {
-			if (args.length>0) {
-			FileReader r = new FileReader(args[0]);
-			PolarTable t = new PolarTable();
-			t.load(r);
-			r.close();
-			if (args.length>1) {
-				FileWriter w = new FileWriter(args[1]);
-				t.dump(w);
-				w.close();
-			} else
-				t.dump(new OutputStreamWriter(System.out));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public int getReachAngle() {
 		return reachAngle; 
 	}

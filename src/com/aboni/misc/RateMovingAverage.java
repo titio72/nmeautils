@@ -7,7 +7,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class RateMovingAverage implements MovingAverage {
 
-	private long period = 60 * 1000;
+	private long period = 60L * 1000L;
 	private double mAvg = Double.NaN;
 	private final List<Sample> samples = new LinkedList<>();
 
@@ -57,7 +57,7 @@ public class RateMovingAverage implements MovingAverage {
 				if (s.getAge(ts)>period) {
 					mAvg -= s.getValue();
 					it.remove();
-					if (samples.size()==0) {
+					if (samples.isEmpty()) {
 						mAvg = Double.NaN;
 					}
 				} else {

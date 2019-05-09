@@ -13,6 +13,10 @@ import java.util.TimeZone;
 
 public class NMEATimestampExtractor {
 
+	private NMEATimestampExtractor() {
+
+	}
+
 	private static final DecimalFormat fh = new DecimalFormat("+00");
 	private static final DecimalFormat fm = new DecimalFormat("00");
 
@@ -71,7 +75,7 @@ public class NMEATimestampExtractor {
         Calendar c = Calendar.getInstance(tz);
 		//noinspection MagicConstant
 		c.set(dt.d.getYear(), dt.d.getMonth()-1, dt.d.getDay(), dt.t.getHour(), dt.t.getMinutes(), (int)dt.t.getSeconds());
-		c.set(Calendar.MILLISECOND, (int)((dt.t.getSeconds()-(int)dt.t.getSeconds()))*1000);
+		c.set(Calendar.MILLISECOND, (int)(dt.t.getSeconds()-(int)dt.t.getSeconds())*1000);
 
 		return c;
 	}

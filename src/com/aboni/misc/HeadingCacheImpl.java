@@ -37,20 +37,26 @@ public class HeadingCacheImpl implements HeadingCache {
         try {
         if (s!=null) {
                 if (s instanceof PositionSentence) {
-                    ePos.event = ((PositionSentence) s).getPosition();
+                    ePos.ev = ((PositionSentence) s).getPosition();
                     ePos.timestamp = System.currentTimeMillis();
                 } else if (s instanceof VHWSentence) {
-                    eSpeed.event = ((VHWSentence)s).getSpeedKnots();
+                    eSpeed.ev = ((VHWSentence)s).getSpeedKnots();
                     eSpeed.timestamp = System.currentTimeMillis();
                 } else if (s instanceof HDMSentence) {
-                    eHeadingCompass.event = ((HDMSentence) s).getHeading();
+                    eHeadingCompass.ev = ((HDMSentence) s).getHeading();
                     eHeadingCompass.timestamp = System.currentTimeMillis();
                 } else if (s instanceof HDTSentence) {
-                    eHeadingTrue.event = ((HDTSentence) s).getHeading();
+                    eHeadingTrue.ev = ((HDTSentence) s).getHeading();
                     eHeadingTrue.timestamp = System.currentTimeMillis();
                 } else if (s instanceof HDGSentence) {
+                    eHeadingMagnetic.ev = Utils.getMagHeading((HeadingSentence)s);
+                    eHeadingTrue.ev = Utils.getMagHeading((HeadingSentence)s);
+                    eHeadingCompass.ev = ((HeadingSentence)s).getHeading();
+                    eHeadingMagnetic.timestamp = System.currentTimeMillis();
                 }
             }
-        } catch (DataNotAvailableException ignore) {}
+        } catch (DataNotAvailableException ignore) {
+            // ignore this exception
+        }
     }
 }

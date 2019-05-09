@@ -48,7 +48,7 @@ public class WindStreamTest {
 		}
 
 		void dump() {
-			for (Event<Sentence> s: output) System.out.println(s.event);
+			for (Event<Sentence> s: output) System.out.println(s.ev);
 		}
 
 		/**
@@ -60,9 +60,9 @@ public class WindStreamTest {
 		 */
 		Sentence find(final String type, int count, NMEASentenceFilter filter) {
 			for (Event<Sentence> e: output) {
-				if (e!=null && e.event!=null && type.equals(e.event.getSentenceId())) {
-					if (filter==null || filter.match(e.event, null)) {
-						if (count == 0) return e.event;
+				if (e!=null && e.ev!=null && type.equals(e.ev.getSentenceId())) {
+					if (filter==null || filter.match(e.ev, null)) {
+						if (count == 0) return e.ev;
 						else count--;
 					}
 				}
@@ -79,9 +79,9 @@ public class WindStreamTest {
 		Collection<Sentence> findAll(final String type, NMEASentenceFilter filter) {
 			List<Sentence> res = new ArrayList<>();
 			for (Event<Sentence> e: output) {
-				if (e!=null && e.event!=null && type.equals(e.event.getSentenceId())) {
-					if (filter==null || filter.match(e.event, null)) {
-						res.add(e.event);
+				if (e!=null && e.ev!=null && type.equals(e.ev.getSentenceId())) {
+					if (filter==null || filter.match(e.ev, null)) {
+						res.add(e.ev);
 					}
 				}
 			}

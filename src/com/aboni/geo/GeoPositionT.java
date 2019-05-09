@@ -10,8 +10,6 @@ import java.util.Date;
 @SuppressWarnings("unused")
 public class GeoPositionT extends Position {
 
-	private static final DateFormat f = new SimpleDateFormat("HH:mm:ss");
-	
 	public GeoPositionT(long timestamp, Position p) {
 		super(p.getLatitude(), p.getLongitude());
 		this.timestamp = timestamp;
@@ -35,8 +33,10 @@ public class GeoPositionT extends Position {
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
-	
+
+	@Override
 	public String toString() {
+		DateFormat f = new SimpleDateFormat("HH:mm:ss");
 		return f.format(new Date(timestamp)) + 
 				String.format(" %8.4f %s %8.4f %s", getLatitude(), 
 						Utils.getLatitudeEmisphere(getLatitude()),

@@ -1,7 +1,6 @@
 package com.aboni.misc;
 
 import com.aboni.geo.TrueWind;
-import net.sf.marineapi.nmea.parser.DataNotAvailableException;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.*;
 import net.sf.marineapi.nmea.util.Units;
@@ -24,72 +23,47 @@ public class NMEATrueWind {
 	
 	public void calcMWDSentence(long threshold, long time) {
 		if (Math.abs(eHeadingG.timestamp - eTWind.timestamp)<threshold/*ms*/) {
-			calcMWDSentence(time, eHeadingG.event);
+			calcMWDSentence(time, eHeadingG.ev);
 		} else if (Math.abs(eHeadingM.timestamp - eTWind.timestamp)<threshold/*ms*/) {
-			calcMWDSentence(time, eHeadingM.event);
+			calcMWDSentence(time, eHeadingM.ev);
 		} else if (Math.abs(eSpeed.timestamp - eTWind.timestamp)<threshold/*ms*/) {
-			calcMWDSentence(time, eSpeed.event);
+			calcMWDSentence(time, eSpeed.ev);
 		}
 	}
 
 	public void calcMWDSentence(long time) {
-		if (eHeadingG.event!=null) {
-			calcMWDSentence(time, eHeadingG.event);
-		} else if (eHeadingM.event!=null) {
-			calcMWDSentence(time, eHeadingM.event);
-		} else if (eSpeed.event!=null) {
-			calcMWDSentence(time, eSpeed.event);
+		if (eHeadingG.ev!=null) {
+			calcMWDSentence(time, eHeadingG.ev);
+		} else if (eHeadingM.ev!=null) {
+			calcMWDSentence(time, eHeadingM.ev);
+		} else if (eSpeed.ev!=null) {
+			calcMWDSentence(time, eSpeed.ev);
 		}
 	}
 	
 	private void calcMWDSentence(long time, HeadingSentence hs) {
-		if (hs!=null && eTWind.event!=null) {
+		if (hs!=null && eTWind.ev!=null) {
 			MWDSentence s = (MWDSentence) SentenceFactory.getInstance().createParser(id, SentenceId.MWD);
 
-			double td = getTrueHeading(hs) + eTWind.event.getAngle();
+			double td = Utils.getTrueHeading(hs) + eTWind.ev.getAngle();
 			if (!Double.isNaN(td)) {
 				td = Utils.normalizeDegrees0_360(td);
 				s.setTrueWindDirection(Utils.round(td, 2));
 			}
 
-			double md = getMagHeading(hs) + eTWind.event.getAngle();
+			double md = Utils.getMagHeading(hs) + eTWind.ev.getAngle();
 			if (!Double.isNaN(md)) {
 				md = Utils.normalizeDegrees0_360(md);
 				s.setMagneticWindDirection(Utils.round(md, 2));
 			}
 			
-			s.setWindSpeedKnots(eTWind.event.getSpeed());
-			s.setWindSpeed(Utils.round(eTWind.event.getSpeed()*0.51444444444, 2));
+			s.setWindSpeedKnots(eTWind.ev.getSpeed());
+			s.setWindSpeed(Utils.round(eTWind.ev.getSpeed()*0.51444444444, 2));
 			
 			eWind.setEvent(s, time);
 		}
 	}
 
-    private static double getTrueHeading(HeadingSentence h) {
-		double dev = 0.0, var = 0.0;
-		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception ignored) {}
-		try { if (h instanceof HDGSentence) var = ((HDGSentence)h).getVariation(); } catch (Exception ignored) {}
-		try {
-			return h.getHeading() + var + dev;
-		} catch (DataNotAvailableException e) {
-			return Double.NaN;
-		}
-    }
-	
-    private static double getMagHeading(HeadingSentence h) {
-		double dev = 0.0;
-		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception ignored) {}
-		try {
-			if (h instanceof VHWSentence) {
-				return ((VHWSentence)h).getMagneticHeading();
-			} else {
-				return h.getHeading() + dev;
-			}
-		} catch (DataNotAvailableException e) {
-			return Double.NaN;
-		}
-    }
-	
 	public void calcMWVSentence(long threshold, long time) {
 		if (Math.abs(eSpeed.timestamp - eAWind.timestamp)<threshold/*ms*/) {
 			calcMWVSentence(time);
@@ -99,11 +73,11 @@ public class NMEATrueWind {
 	}
 	
 	public void calcMWVSentence(long time) {
-		if (eSpeed.event!=null && eAWind.event!=null) {
+		if (eSpeed.ev!=null && eAWind.ev!=null) {
 			MWVSentence mwvt = (MWVSentence) SentenceFactory.getInstance().createParser(id, SentenceId.MWV);
-			double s = eSpeed.event.getSpeedKnots();
-			double wdm = eAWind.event.getAngle();
-			double ws = eAWind.event.getSpeed();
+			double s = eSpeed.ev.getSpeedKnots();
+			double wdm = eAWind.ev.getAngle();
+			double ws = eAWind.ev.getSpeed();
 			TrueWind tw = new TrueWind(s, wdm, ws);
 			mwvt.setAngle(Utils.normalizeDegrees0_360(tw.getTrueWindDeg()));
 			mwvt.setSpeed(tw.getTrueWindSpeed());
@@ -127,7 +101,7 @@ public class NMEATrueWind {
 	}
 	
 	public HDGSentence getHeading() {
-		return eHeadingG.event;
+		return eHeadingG.ev;
 	}
 
 	public long getHeadingAge(long now) {
@@ -139,7 +113,7 @@ public class NMEATrueWind {
 	}
 	
 	public MWDSentence getWind() {
-		return eWind.event;
+		return eWind.ev;
 	}
 	
 	public long getWindAge(long now) {
@@ -151,7 +125,7 @@ public class NMEATrueWind {
 	}
 	
 	public VHWSentence getSpeed() {
-		return eSpeed.event;
+		return eSpeed.ev;
 	}
 	
 	public long getSpeedAge(long now) {
@@ -169,7 +143,7 @@ public class NMEATrueWind {
 	}
 	
 	public MWVSentence getTrueWind() {
-		return eTWind.event;
+		return eTWind.ev;
 	}
 	
 	public long getTrueWindAge(long now) {
@@ -177,7 +151,7 @@ public class NMEATrueWind {
 	}
 	
 	public MWVSentence getApparentWind() {
-		return eAWind.event;
+		return eAWind.ev;
 	}
 	
 	public long getAppWindAge(long now) {

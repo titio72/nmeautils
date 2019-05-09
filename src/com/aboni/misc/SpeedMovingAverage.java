@@ -6,11 +6,12 @@ import java.util.List;
 
 public class SpeedMovingAverage implements MovingAverage {
 
-	private long period = 60 * 1000;
+	private long period = 60L * 1000L;
 	private double mAvg = Double.NaN;
 	private final List<Sample> samples = new LinkedList<>();
 
 	public SpeedMovingAverage() {
+		// nothing to do here
 	}
 	
 	public SpeedMovingAverage(long period) {
@@ -54,10 +55,10 @@ public class SpeedMovingAverage implements MovingAverage {
 			while (it.hasNext()) {
 				Sample s = it.next();
 				if (s.getAge(ts)>period) {
-					double V = ( mAvg * samples.size() - s.getValue() );
+					double v = ( mAvg * samples.size() - s.getValue() );
 					it.remove();
-					if (samples.size()>0) {
-						mAvg = V / samples.size();
+					if (!samples.isEmpty()) {
+						mAvg = v / samples.size();
 					} else {
 						mAvg = Double.NaN;
 					}

@@ -2,6 +2,10 @@ package com.aboni.misc;
 
 import net.sf.geographiclib.Geodesic;
 import net.sf.geographiclib.GeodesicData;
+import net.sf.marineapi.nmea.parser.DataNotAvailableException;
+import net.sf.marineapi.nmea.sentence.HDGSentence;
+import net.sf.marineapi.nmea.sentence.HeadingSentence;
+import net.sf.marineapi.nmea.sentence.VHWSentence;
 import net.sf.marineapi.nmea.util.CompassPoint;
 import net.sf.marineapi.nmea.util.Position;
 
@@ -10,6 +14,34 @@ public class Utils {
 
 	private Utils() {
 	}
+
+
+	public static double getTrueHeading(HeadingSentence h) {
+		double dev = 0.0;
+		double var = 0.0;
+		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception ignored) { dev = 0.0; }
+		try { if (h instanceof HDGSentence) var = ((HDGSentence)h).getVariation(); } catch (Exception ignored) { var = 0.0; }
+		try {
+			return h.getHeading() + var + dev;
+		} catch (DataNotAvailableException e) {
+			return Double.NaN;
+		}
+	}
+
+	public static double getMagHeading(HeadingSentence h) {
+		double dev = 0.0;
+		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception ignored) {}
+		try {
+			if (h instanceof VHWSentence) {
+				return ((VHWSentence)h).getMagneticHeading();
+			} else {
+				return h.getHeading() + dev;
+			}
+		} catch (DataNotAvailableException e) {
+			return Double.NaN;
+		}
+	}
+
 
 	/**
 	 * Pauses the current threads.
