@@ -73,8 +73,8 @@ public class Stalk84Test {
 		assertEquals(358, ss.getAutoDeg());
 		assertFalse(ss.isWind());
 		assertFalse(ss.isTrack());
-		assertFalse(ss.isErr_off_course());
-		assertFalse(ss.isErr_wind_shift());
+		assertFalse(ss.isErrOffCourse());
+		assertFalse(ss.isErrWindShift());
 		assertEquals(-11, ss.getRudder());
 	}
 	
@@ -87,7 +87,7 @@ public class Stalk84Test {
 		assertFalse(ss.isAuto());
 		assertFalse(ss.isWind());
 		assertFalse(ss.isTrack());
-		assertFalse(ss.isErr_off_course());
+		assertFalse(ss.isErrOffCourse());
 		assertEquals(3, ss.getRudder());
 	}
 	
@@ -101,7 +101,7 @@ public class Stalk84Test {
 		assertTrue(ss.isAuto());
 		assertFalse(ss.isWind());
 		assertFalse(ss.isTrack());
-		assertFalse(ss.isErr_off_course());
+		assertFalse(ss.isErrOffCourse());
 		assertEquals(3, ss.getRudder());
 	}
 

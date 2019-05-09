@@ -87,15 +87,19 @@ public class XMCParser implements XMCSentence {
 
 	@Override
 	public boolean isValid() {
-		return true;
+		return average!=null && median!=null;
 	}
 
 	@Override
 	public void reset() {
+		average = null;
+		median = null;
+		anchor = false;
 	}
 
 	@Override
 	public void setBeginChar(char ch) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -119,39 +123,39 @@ public class XMCParser implements XMCSentence {
 	public String toSentence() {
 		
 		
-		String med_lat = "";
-		String avg_lat = "";
-		String med_lon = "";
-		String avg_lon = "";
-		String med_NS = "";
-		String med_EW = "";
-		String avg_NS = "";
-		String avg_EW = "";
+		String medLat = "";
+		String avgLat = "";
+		String medLon = "";
+		String avgLon = "";
+		String medNS = "";
+		String medEW = "";
+		String avgNS = "";
+		String avgEW = "";
 		
 		if (getAveragePosition()!=null) {
-			avg_lat = getLatitude(getAveragePosition().getLatitude());
-			avg_NS = (getAveragePosition().getLatitudeHemisphere()==CompassPoint.NORTH)?"N":"S";
-			avg_lon = getLongitude(getAveragePosition().getLongitude());
-			avg_EW = (getAveragePosition().getLongitudeHemisphere()==CompassPoint.EAST)?"E":"W";
+			avgLat = getLatitude(getAveragePosition().getLatitude());
+			avgNS = (getAveragePosition().getLatitudeHemisphere()==CompassPoint.NORTH)?"N":"S";
+			avgLon = getLongitude(getAveragePosition().getLongitude());
+			avgEW = (getAveragePosition().getLongitudeHemisphere()==CompassPoint.EAST)?"E":"W";
 		}
 		
 		if (getMedianPosition()!=null) {
-			med_lat = getLatitude(getMedianPosition().getLatitude());
-			med_NS = getMedianPosition().getLatitudeHemisphere()==CompassPoint.NORTH?"N":"S";
-			med_lon = getLongitude(getMedianPosition().getLongitude());
-			med_EW = getMedianPosition().getLongitudeHemisphere()==CompassPoint.EAST?"E":"W";
+			medLat = getLatitude(getMedianPosition().getLatitude());
+			medNS = getMedianPosition().getLatitudeHemisphere()==CompassPoint.NORTH?"N":"S";
+			medLon = getLongitude(getMedianPosition().getLongitude());
+			medEW = getMedianPosition().getLongitudeHemisphere()==CompassPoint.EAST?"E":"W";
 		}
 		
 		String s = String.format("$%sXMC,%s,%s,%s,%s,%s,%s,%s,%s,%d", 
 					tid.toString(),
-					med_lat,
-					med_NS,
-					med_lon,
-					med_EW,
-					avg_lat,
-					avg_NS,
-					avg_lon,
-					avg_EW,
+					medLat,
+					medNS,
+					medLon,
+					medEW,
+					avgLat,
+					avgNS,
+					avgLon,
+					avgEW,
 					anchor?1:0
 				);
 

@@ -185,8 +185,8 @@ public class NMEA2JSONb {
 			if (s84.isWind()) status = "WindVane";
 			if (s84.isTrack()) status = "Track";
 			json.put("status", status);
-			json.put("offCourse", s84.isErr_off_course());
-			json.put("windShift", s84.isErr_wind_shift());
+			json.put("offCourse", s84.isErrOffCourse());
+			json.put("windShift", s84.isErrWindShift());
 			return json;
 		} else {
 			return null;

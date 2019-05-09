@@ -2,6 +2,7 @@ package com.aboni.seatalk;
 
 import com.aboni.misc.Utils;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
+import net.sf.marineapi.nmea.parser.UnsupportedSentenceException;
 import net.sf.marineapi.nmea.sentence.Checksum;
 import net.sf.marineapi.nmea.sentence.STALKSentence;
 
@@ -43,7 +44,6 @@ import java.io.OutputStream;
 
  */
 
-@SuppressWarnings("unused")
 public class Stalk84 {
 
 	public enum TURN {
@@ -155,7 +155,7 @@ public class Stalk84 {
 			calc(data);
 			sentence = s.toSentence();
 		} else {
-			throw new RuntimeException("Type is not 84");
+			throw new UnsupportedSentenceException("Type is not 84");
 		}
 	}
 	
@@ -167,7 +167,7 @@ public class Stalk84 {
 			b.append(",").append(d[i]);
 		}
 		sentence = b.toString();
-		if (!data[0].equals("84")) throw new RuntimeException("Type is not 84");
+		if (!data[0].equals("84")) throw new UnsupportedSentenceException("Type is not 84");
 		calc(data);
 	}
 	
@@ -191,11 +191,11 @@ public class Stalk84 {
 		return (status & STATUS.STATUS_TRACK.value)==STATUS.STATUS_TRACK.value;
 	}
 
-	public boolean isErr_off_course() {
+	public boolean isErrOffCourse() {
 		return (error & ERROR.ERROR_OFF_COURSE.value)==ERROR.ERROR_OFF_COURSE.value;
 	}
 
-	public boolean isErr_wind_shift() {
+	public boolean isErrWindShift() {
 		return (error & ERROR.ERROR_WIND_SHIFT.value)==ERROR.ERROR_WIND_SHIFT.value;
 	}
 
@@ -236,7 +236,10 @@ public class Stalk84 {
 		if (isAuto() || isWind()) {
 			autoDeg = xy/2 + ((v & 0xC) >> 2) * 90;
 		}
-		heading = (u & 0x3) * 90 + (vw & 0x3F)* 2 + ( ((u & 0xC) != 0) ? ( ((u & 0xC) == 0xC) ? 2 : 1): 0); 
+		heading = (u & 0x3) * 90 + (vw & 0x3F)* 2;
+		if ((u & 0xC) != 0) {
+			heading += ((u & 0xC) == 0xC) ? 2 : 1;
+		}
 
         //Most significant bit of U = 1: Increasing heading, Ship turns right 
         //Most significant bit of U = 0: Decreasing heading, Ship turns left
@@ -249,8 +252,8 @@ public class Stalk84 {
 		r += "Auto  " + isAuto() + (isAuto()?(" [" + autoDeg + "]"):"") + "\r\n";
 		r += "Wind  " + isWind() + "\r\n";
 		r += "Track " + isTrack() + "\r\n";
-		r += "Off Track  " + isErr_off_course() + "\r\n";
-		r += "Wind Shift " + isErr_wind_shift() + "\r\n";
+		r += "Off Track  " + isErrOffCourse() + "\r\n";
+		r += "Wind Shift " + isErrWindShift() + "\r\n";
 		r += "Rudder " + rudder + "\r\n";
 		p.write(r.getBytes());
 	}
@@ -264,8 +267,8 @@ public class Stalk84 {
 		r += " AutoDeg {" + autoDeg + "}";
 		r += " Wind {" + isWind() + "}";
 		r += " Track {" + isTrack() + "}";
-		r += " OffTrack {" + isErr_off_course() + "}";
-		r += " WindShift {" + isErr_wind_shift() + "}";
+		r += " OffTrack {" + isErrOffCourse() + "}";
+		r += " WindShift {" + isErrWindShift() + "}";
 		r += " Sentence {" + sentence + "}";
 		return r;
 	}

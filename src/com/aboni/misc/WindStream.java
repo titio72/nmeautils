@@ -223,5 +223,7 @@ public class WindStream {
 		}
 	}
 
-	protected void onProcSentence(Sentence s, long time) {}
+	protected void onProcSentence(Sentence s, long time) {
+		// do nothing
+	}
 }

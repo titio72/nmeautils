@@ -30,7 +30,7 @@ public class Utils {
 
 	public static double getMagHeading(HeadingSentence h) {
 		double dev = 0.0;
-		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception ignored) {}
+		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception ignored) { /* optional */ }
 		try {
 			if (h instanceof VHWSentence) {
 				return ((VHWSentence)h).getMagneticHeading();
