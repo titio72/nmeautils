@@ -27,9 +27,9 @@ public class WindStreamTest {
 
 		static WindStream.Conf getConf(boolean useVWR, boolean forceCalcTrue) {
 			WindStream.Conf c = new Conf();
-			c.useVWR = useVWR;
-			c.forceCalcTrue = forceCalcTrue;
-			c.skipFirstCalculation = false;
+			c.setUseVWR(useVWR);
+			c.setForceCalcTrue(forceCalcTrue);
+			c.setSkipFirstCalculation(false);
 			return c;
 		}
 

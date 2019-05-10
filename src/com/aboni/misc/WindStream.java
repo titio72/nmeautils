@@ -7,15 +7,63 @@ import net.sf.marineapi.nmea.util.DataStatus;
 import net.sf.marineapi.nmea.util.Side;
 import net.sf.marineapi.nmea.util.Units;
 
-@SuppressWarnings("unused")
 public class WindStream {
 
 	public static class Conf {
-		public boolean useVWR = false;
-		public boolean forceCalcTrue = false;
-		public boolean smoothWind = false;
-		public double windSmoothingFactor = 0.5;
-		public boolean skipFirstCalculation = true;
+
+		private boolean useVWR;
+		private boolean forceCalcTrue;
+		private boolean smoothWind;
+		private double windSmoothingFactor;
+		private boolean skipFirstCalculation;
+
+		public Conf() {
+			useVWR = false;
+			forceCalcTrue = false;
+			smoothWind = false;
+			windSmoothingFactor = 0.5;
+			skipFirstCalculation = true;
+		}
+
+		public boolean isUseVWR() {
+			return useVWR;
+		}
+
+		public void setUseVWR(boolean useVWR) {
+			this.useVWR = useVWR;
+		}
+
+		public boolean isForceCalcTrue() {
+			return forceCalcTrue;
+		}
+
+		public void setForceCalcTrue(boolean forceCalcTrue) {
+			this.forceCalcTrue = forceCalcTrue;
+		}
+
+		public boolean isSmoothWind() {
+			return smoothWind;
+		}
+
+		public void setSmoothWind(boolean smoothWind) {
+			this.smoothWind = smoothWind;
+		}
+
+		public double getWindSmoothingFactor() {
+			return windSmoothingFactor;
+		}
+
+		public void setWindSmoothingFactor(double windSmoothingFactor) {
+			this.windSmoothingFactor = windSmoothingFactor;
+		}
+
+		public boolean isSkipFirstCalculation() {
+			return skipFirstCalculation;
+		}
+
+		public void setSkipFirstCalculation(boolean skipFirstCalculation) {
+			this.skipFirstCalculation = skipFirstCalculation;
+		}
 	}
 	
 	private final NMEATrueWind windCalc;
