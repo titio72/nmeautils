@@ -60,7 +60,7 @@ public class Utils {
 	 * @param degrees The value of an angle to be normalized.
 	 * @return An equivalent angle in the range [0,360].
 	 */
-	public static double normalizeDegrees0_360(double degrees) {
+	public static double normalizeDegrees0To360(double degrees) {
         if (degrees>360.0) {
             return degrees - (360*((int)(degrees/360)));
         } else if (degrees<0.0) {
@@ -81,8 +81,8 @@ public class Utils {
 	 * @param degrees The value of an angle to be normalized.
 	 * @return An equivalent angle in the range [-180,180].
 	 */
-	public static double normalizeDegrees180_180(double degrees) {
-        degrees = normalizeDegrees0_360(degrees);
+	public static double normalizeDegrees180To180(double degrees) {
+        degrees = normalizeDegrees0To360(degrees);
         if (degrees>180.0) {
         	degrees -= 360.0;
         }
@@ -110,13 +110,13 @@ public class Utils {
 	/**
 	 * Converts a latitude value with N or S indication to signed (+ for North a - for South)
 	 * @param lat The unsigned latitude
-	 * @param NS North or South. Accepted values are 'N', 'n', 'S' & 's'
+	 * @param northSouth North or South. Accepted values are 'N', 'n', 'S' & 's'
 	 * @return The signed latitude.
 	 */
-	public static double getSignedLatitude(double lat, char NS) {
-		if (NS=='N' || NS=='n')
+	public static double getSignedLatitude(double lat, char northSouth) {
+		if (northSouth=='N' || northSouth=='n')
 			return lat;
-		else if (NS=='S' || NS=='s') 
+		else if (northSouth=='S' || northSouth=='s')
 			return -lat;
 		else
 			return 0.0;
@@ -126,13 +126,13 @@ public class Utils {
 	/**
 	 * Converts a longitude value with W or E indication to signed (+ for East a - for West)
 	 * @param lon The unsigned longitude
-	 * @param WE East or West. Accepted values are 'N', 'n', 'S' & 's'
+	 * @param westEast East or West. Accepted values are 'N', 'n', 'S' & 's'
 	 * @return The signed longitude.
 	 */
-	public static double getSignedLongitude(double lon, char WE) {
-		if (WE=='E' || WE=='e') 
+	public static double getSignedLongitude(double lon, char westEast) {
+		if (westEast=='E' || westEast=='e')
 			return lon;
-		else  if (WE=='W' || WE=='w') 
+		else  if (westEast=='W' || westEast=='w')
 			return -lon;
 		else
 			return 0.0;
@@ -146,8 +146,8 @@ public class Utils {
     }
 
 	public static double getNormal(double ref, double a) {
-		ref = Utils.normalizeDegrees0_360(ref);
-		a = Utils.normalizeDegrees0_360(a);
+		ref = Utils.normalizeDegrees0To360(ref);
+		a = Utils.normalizeDegrees0To360(a);
 
 		double l = a - ref;
 		if (l>180) {
@@ -167,10 +167,10 @@ public class Utils {
 	};
 	
 	public static String getCardinal(double deg) {
-		double d = normalizeDegrees0_360(deg);
+		double d = normalizeDegrees0To360(deg);
 		d = d / 22.5;
-		int _d = (int) Math.round(d);
-		return CARDINALS[_d % 16];
+		int dd = (int) Math.round(d);
+		return CARDINALS[dd % 16];
 	}
 
 	public static Position calcNewLL(Position p0, double heading, double dist) {
@@ -180,7 +180,7 @@ public class Utils {
 	
 	public static double tack(double heading, double trueWind) {
 		double tack = heading + 2 * trueWind;
-		return Utils.normalizeDegrees0_360(tack);
+		return Utils.normalizeDegrees0To360(tack);
 	}
 
 	public static String formatLL(double d, CompassPoint p) {

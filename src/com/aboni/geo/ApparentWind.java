@@ -16,14 +16,14 @@ public class ApparentWind {
     }
     
     public ApparentWind(double speed, double trueWindDeg, double trueWindSpeed) {
-    	trueWindDeg = Utils.normalizeDegrees180_180(trueWindDeg);
+    	trueWindDeg = Utils.normalizeDegrees180To180(trueWindDeg);
     	double sign = (trueWindDeg<0)?-1:1;
     	trueWindDeg = Math.abs(trueWindDeg);
     	appWindSpeed = Math.sqrt(speed * speed + trueWindSpeed * trueWindSpeed + 2d * Math.cos(Math.toRadians(trueWindDeg)) * speed * trueWindSpeed);
     	appWindDeg = Math.toDegrees(
     			Math.acos((trueWindSpeed * Math.cos(Math.toRadians(trueWindDeg)) + speed) / appWindSpeed) 
     			);
-    	appWindDeg = Utils.normalizeDegrees0_360(appWindDeg * sign);
+    	appWindDeg = Utils.normalizeDegrees0To360(appWindDeg * sign);
     }
 
 }

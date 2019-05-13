@@ -35,18 +35,18 @@ public class UtilsTest {
 	
 	@Test
 	public void testNormalizeDegrees0_360() {
-		assertEquals(30.0, Utils.normalizeDegrees0_360(30.0), 0.0001);
-		assertEquals(330.0, Utils.normalizeDegrees0_360(-30.0), 0.0001);
-		assertEquals(180.0, Utils.normalizeDegrees0_360(180.0), 0.0001);
-		assertEquals(180.0, Utils.normalizeDegrees0_360(-180.0), 0.0001);
-		assertEquals(270.0, Utils.normalizeDegrees0_360(270.0), 0.0001);
-		assertEquals(270.0, Utils.normalizeDegrees0_360(-90.0), 0.0001);
+		assertEquals(30.0, Utils.normalizeDegrees0To360(30.0), 0.0001);
+		assertEquals(330.0, Utils.normalizeDegrees0To360(-30.0), 0.0001);
+		assertEquals(180.0, Utils.normalizeDegrees0To360(180.0), 0.0001);
+		assertEquals(180.0, Utils.normalizeDegrees0To360(-180.0), 0.0001);
+		assertEquals(270.0, Utils.normalizeDegrees0To360(270.0), 0.0001);
+		assertEquals(270.0, Utils.normalizeDegrees0To360(-90.0), 0.0001);
 	}
 
 	@Test
 	public void testNormalizeDegrees180_180() {
-		assertEquals( 30.0, Utils.normalizeDegrees180_180(30.0), 0.0001);
-		assertEquals(-30.0, Utils.normalizeDegrees180_180(330.0), 0.0001);
+		assertEquals( 30.0, Utils.normalizeDegrees180To180(30.0), 0.0001);
+		assertEquals(-30.0, Utils.normalizeDegrees180To180(330.0), 0.0001);
 	}
 
 	@Test

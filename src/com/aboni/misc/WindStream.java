@@ -173,12 +173,12 @@ public class WindStream {
 		onProcSentence(mwv, time);
 		
 		double wSpeed = mwv.getSpeed();
-		double wAngle = Utils.normalizeDegrees0_360(mwv.getAngle());
+		double wAngle = Utils.normalizeDegrees0To360(mwv.getAngle());
 		if (conf.smoothWind) {
 			if (lastMWVAppSpeedValue >=0) {
 				lastMWVAppSpeedValue = LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWVAppSpeedValue, wSpeed);
 				lastMWVAppAngleValue = Utils.getNormal(wAngle, lastMWVAppAngleValue);
-				lastMWVAppAngleValue = Utils.normalizeDegrees0_360(LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWVAppAngleValue, wAngle));
+				lastMWVAppAngleValue = Utils.normalizeDegrees0To360(LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWVAppAngleValue, wAngle));
 			} else {
 				lastMWVAppSpeedValue = wSpeed;
 				lastMWVAppAngleValue = wAngle;
@@ -209,12 +209,12 @@ public class WindStream {
 			lastMWVTrue = time;
 			
 			double wSpeed = mwv.getSpeed();
-			double wAngle = Utils.normalizeDegrees0_360(mwv.getAngle());
+			double wAngle = Utils.normalizeDegrees0To360(mwv.getAngle());
 			if (conf.smoothWind) {
 				if (lastMWVTrueSpeedValue >=0) {
 					lastMWVTrueSpeedValue = LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWVTrueSpeedValue, wSpeed);
 					lastMWVTrueAngleValue = Utils.getNormal(wAngle, lastMWVTrueAngleValue);
-					lastMWVTrueAngleValue = Utils.normalizeDegrees0_360(LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWVTrueAngleValue, wAngle));
+					lastMWVTrueAngleValue = Utils.normalizeDegrees0To360(LPFFilter.getLPFReading(conf.windSmoothingFactor, lastMWVTrueAngleValue, wAngle));
 				} else {
 					lastMWVTrueSpeedValue = wSpeed;
 					lastMWVTrueAngleValue = wAngle;
