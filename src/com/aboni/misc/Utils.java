@@ -15,7 +15,13 @@ public class Utils {
 	private Utils() {
 	}
 
-
+	/**
+	 * Extracts the true heading from a heding sentence.
+	 * If the heading sentence is a HDG the provided variation & deviation will be taken into account.
+	 * This method does not automatically calculate the variation if not given.
+	 * @param h The heading sentence to extract the true heading from.
+	 * @return The true heading if possible or just the heading provided by the sentence.
+	 */
 	public static double getTrueHeading(HeadingSentence h) {
 		double dev = 0.0;
 		double var = 0.0;
@@ -28,6 +34,12 @@ public class Utils {
 		}
 	}
 
+	/**
+	 * Extracts the true magnetic from a heading sentence.
+	 * If the heading sentence is a HDG the provided deviation will be taken into account.
+	 * @param h The heading sentence toe xtract the true heading from.
+	 * @return The magnetic heading if possible or just the heading provided by the sentence.
+	 */
 	public static double getMagHeading(HeadingSentence h) {
 		double dev = 0.0;
 		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception ignored) { /* optional */ }
@@ -42,16 +54,17 @@ public class Utils {
 		}
 	}
 
-
 	/**
 	 * Pauses the current threads.
 	 * @param mseconds The length of the pause in milliseconds.
 	 */
 	public static void pause(int mseconds) {
-		try {
-			Thread.sleep(mseconds);
-		} catch (InterruptedException ignored) {
-			Thread.currentThread().interrupt();
+		if (mseconds!=0) {
+			try {
+				Thread.sleep(mseconds);
+			} catch (InterruptedException ignored) {
+				Thread.currentThread().interrupt();
+			}
 		}
 	}
 
@@ -110,29 +123,28 @@ public class Utils {
 	/**
 	 * Converts a latitude value with N or S indication to signed (+ for North a - for South)
 	 * @param lat The unsigned latitude
-	 * @param NS North or South. Accepted values are 'N', 'n', 'S' & 's'
+	 * @param northSouth North or South. Accepted values are 'N', 'n', 'S' & 's'
 	 * @return The signed latitude.
 	 */
-	public static double getSignedLatitude(double lat, char NS) {
-		if (NS=='N' || NS=='n')
+	public static double getSignedLatitude(double lat, char northSouth) {
+		if (northSouth=='N' || northSouth=='n')
 			return lat;
-		else if (NS=='S' || NS=='s') 
+		else if (northSouth=='S' || northSouth=='s')
 			return -lat;
 		else
 			return 0.0;
 	}
 
-	
 	/**
 	 * Converts a longitude value with W or E indication to signed (+ for East a - for West)
 	 * @param lon The unsigned longitude
-	 * @param WE East or West. Accepted values are 'N', 'n', 'S' & 's'
+	 * @param westEast East or West. Accepted values are 'N', 'n', 'S' & 's'
 	 * @return The signed longitude.
 	 */
-	public static double getSignedLongitude(double lon, char WE) {
-		if (WE=='E' || WE=='e') 
+	public static double getSignedLongitude(double lon, char westEast) {
+		if (westEast=='E' || westEast=='e')
 			return lon;
-		else  if (WE=='W' || WE=='w') 
+		else  if (westEast=='W' || westEast=='w')
 			return -lon;
 		else
 			return 0.0;
@@ -169,8 +181,8 @@ public class Utils {
 	public static String getCardinal(double deg) {
 		double d = normalizeDegrees0_360(deg);
 		d = d / 22.5;
-		int _d = (int) Math.round(d);
-		return CARDINALS[_d % 16];
+		int dd = (int) Math.round(d);
+		return CARDINALS[dd % 16];
 	}
 
 	public static Position calcNewLL(Position p0, double heading, double dist) {
@@ -194,6 +206,6 @@ public class Utils {
 			case SOUTH: pp = "S"; break;
 			default: pp = "?";
 		}
-		return  String.format("%03d", deg) + " " + String.format("%06.3f", min) +   " " + pp;
+		return String.format("%03d %06.3f %s", deg, min, pp);
 	}
 }
