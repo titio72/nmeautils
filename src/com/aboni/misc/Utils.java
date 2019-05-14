@@ -15,7 +15,13 @@ public class Utils {
 	private Utils() {
 	}
 
-
+	/**
+	 * Extracts the true heading from a heding sentence.
+	 * If the heading sentence is a HDG the provided variation & deviation will be taken into account.
+	 * This method does not automatically calculate the variation if not given.
+	 * @param h The heading sentence to extract the true heading from.
+	 * @return The true heading if possible or just the heading provided by the sentence.
+	 */
 	public static double getTrueHeading(HeadingSentence h) {
 		double dev = 0.0;
 		double var = 0.0;
@@ -28,6 +34,12 @@ public class Utils {
 		}
 	}
 
+	/**
+	 * Extracts the true magnetic from a heading sentence.
+	 * If the heading sentence is a HDG the provided deviation will be taken into account.
+	 * @param h The heading sentence toe xtract the true heading from.
+	 * @return The magnetic heading if possible or just the heading provided by the sentence.
+	 */
 	public static double getMagHeading(HeadingSentence h) {
 		double dev = 0.0;
 		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception ignored) { /* optional */ }
@@ -42,16 +54,17 @@ public class Utils {
 		}
 	}
 
-
 	/**
 	 * Pauses the current threads.
 	 * @param mseconds The length of the pause in milliseconds.
 	 */
 	public static void pause(int mseconds) {
-		try {
-			Thread.sleep(mseconds);
-		} catch (InterruptedException ignored) {
-			Thread.currentThread().interrupt();
+		if (mseconds!=0) {
+			try {
+				Thread.sleep(mseconds);
+			} catch (InterruptedException ignored) {
+				Thread.currentThread().interrupt();
+			}
 		}
 	}
 
@@ -122,7 +135,6 @@ public class Utils {
 			return 0.0;
 	}
 
-	
 	/**
 	 * Converts a longitude value with W or E indication to signed (+ for East a - for West)
 	 * @param lon The unsigned longitude
@@ -194,6 +206,6 @@ public class Utils {
 			case SOUTH: pp = "S"; break;
 			default: pp = "?";
 		}
-		return  String.format("%03d", deg) + " " + String.format("%06.3f", min) +   " " + pp;
+		return String.format("%03d %06.3f %s", deg, min, pp);
 	}
 }
