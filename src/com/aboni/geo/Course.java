@@ -50,7 +50,7 @@ public class Course {
 	private void calc() {
 		GeodesicData d = Geodesic.WGS84.Inverse(p0.getLatitude(), p0.getLongitude(), p1.getLatitude(), p1.getLongitude());
 		distance = d.s12 / 1852.0;
-		cog = Utils.normalizeDegrees0_360((d.azi2 + d.azi1) / 2.0);
+		cog = Utils.normalizeDegrees0To360((d.azi2 + d.azi1) / 2.0);
 		calcSpeed();
 	}
 	

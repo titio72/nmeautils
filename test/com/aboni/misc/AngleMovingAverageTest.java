@@ -64,7 +64,7 @@ public class AngleMovingAverageTest {
 		MovingAverage m = new AngleMovingAverage(10000);
 		double a;
 		for (long i = 0; i<1000; i++) {
-			a = Utils.normalizeDegrees0_360(330.0 + 60.0*((double)i/1000.0));
+			a = Utils.normalizeDegrees0To360(330.0 + 60.0*((double)i/1000.0));
 			m.setSample(i * 100, a);
 		}
 		assertEquals(30.0, m.getAvg(), 5.0);

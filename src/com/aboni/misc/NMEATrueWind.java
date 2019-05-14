@@ -47,13 +47,13 @@ public class NMEATrueWind {
 
 			double td = Utils.getTrueHeading(hs) + eTWind.ev.getAngle();
 			if (!Double.isNaN(td)) {
-				td = Utils.normalizeDegrees0_360(td);
+				td = Utils.normalizeDegrees0To360(td);
 				s.setTrueWindDirection(Utils.round(td, 2));
 			}
 
 			double md = Utils.getMagHeading(hs) + eTWind.ev.getAngle();
 			if (!Double.isNaN(md)) {
-				md = Utils.normalizeDegrees0_360(md);
+				md = Utils.normalizeDegrees0To360(md);
 				s.setMagneticWindDirection(Utils.round(md, 2));
 			}
 			
@@ -79,7 +79,7 @@ public class NMEATrueWind {
 			double wdm = eAWind.ev.getAngle();
 			double ws = eAWind.ev.getSpeed();
 			TrueWind tw = new TrueWind(s, wdm, ws);
-			mwvt.setAngle(Utils.normalizeDegrees0_360(tw.getTrueWindDeg()));
+			mwvt.setAngle(Utils.normalizeDegrees0To360(tw.getTrueWindDeg()));
 			mwvt.setSpeed(tw.getTrueWindSpeed());
 			mwvt.setSpeedUnit(Units.KNOT);
 			mwvt.setTrue(true);

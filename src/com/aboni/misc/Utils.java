@@ -73,7 +73,7 @@ public class Utils {
 	 * @param degrees The value of an angle to be normalized.
 	 * @return An equivalent angle in the range [0,360].
 	 */
-	public static double normalizeDegrees0_360(double degrees) {
+	public static double normalizeDegrees0To360(double degrees) {
         if (degrees>360.0) {
             return degrees - (360*((int)(degrees/360)));
         } else if (degrees<0.0) {
@@ -94,8 +94,8 @@ public class Utils {
 	 * @param degrees The value of an angle to be normalized.
 	 * @return An equivalent angle in the range [-180,180].
 	 */
-	public static double normalizeDegrees180_180(double degrees) {
-        degrees = normalizeDegrees0_360(degrees);
+	public static double normalizeDegrees180To180(double degrees) {
+        degrees = normalizeDegrees0To360(degrees);
         if (degrees>180.0) {
         	degrees -= 360.0;
         }
@@ -158,8 +158,8 @@ public class Utils {
     }
 
 	public static double getNormal(double ref, double a) {
-		ref = Utils.normalizeDegrees0_360(ref);
-		a = Utils.normalizeDegrees0_360(a);
+		ref = Utils.normalizeDegrees0To360(ref);
+		a = Utils.normalizeDegrees0To360(a);
 
 		double l = a - ref;
 		if (l>180) {
@@ -179,7 +179,7 @@ public class Utils {
 	};
 	
 	public static String getCardinal(double deg) {
-		double d = normalizeDegrees0_360(deg);
+		double d = normalizeDegrees0To360(deg);
 		d = d / 22.5;
 		int dd = (int) Math.round(d);
 		return CARDINALS[dd % 16];
@@ -192,7 +192,7 @@ public class Utils {
 	
 	public static double tack(double heading, double trueWind) {
 		double tack = heading + 2 * trueWind;
-		return Utils.normalizeDegrees0_360(tack);
+		return Utils.normalizeDegrees0To360(tack);
 	}
 
 	public static String formatLL(double d, CompassPoint p) {

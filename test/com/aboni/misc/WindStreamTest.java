@@ -125,7 +125,7 @@ public class WindStreamTest {
 
 		VWRSentence sendVWR(double speed, double angle, long time) {
 			VWRSentence s = (VWRSentence)SentenceFactory.getInstance().createParser(TalkerId.II, SentenceId.VWR);
-			angle = Utils.normalizeDegrees180_180(angle);
+			angle = Utils.normalizeDegrees180To180(angle);
 			s.setAngle(Math.abs(angle));
 			s.setSide(angle<0?Side.PORT:Side.STARBOARD);
 			s.setSpeed(speed);

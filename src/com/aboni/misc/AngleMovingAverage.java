@@ -45,14 +45,14 @@ public class AngleMovingAverage implements MovingAverage {
 		synchronized (this) {
 			setTime(ts);
 	
-			double a = Utils.normalizeDegrees0_360(angle);
+			double a = Utils.normalizeDegrees0To360(angle);
 			samples.add(new Sample(ts, a));
 			if (Double.isNaN(mAvg)) {
 				mAvg = a;
 			} else {
 				double a1 = Utils.getNormal(mAvg, a);
 				mAvg = ( mAvg * (samples.size()-1) + a1 ) / samples.size();
-				mAvg = Utils.normalizeDegrees0_360(mAvg);
+				mAvg = Utils.normalizeDegrees0To360(mAvg);
 			}
 		}
 	}
@@ -78,7 +78,7 @@ public class AngleMovingAverage implements MovingAverage {
 					double aA = ( mAvg * samples.size() - a );
 					it.remove();
 					if (!samples.isEmpty()) {
-						mAvg = Utils.normalizeDegrees0_360(aA / samples.size());
+						mAvg = Utils.normalizeDegrees0To360(aA / samples.size());
 					} else {
 						mAvg = Double.NaN;
 					}

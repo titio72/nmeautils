@@ -101,9 +101,9 @@ public class Stalk84 {
 	private String sentence;
 	
 	public Stalk84(int heading, int headingAuto, int rudder, STATUS status, ERROR error, TURN turn) {
-		this.heading = (int)Utils.normalizeDegrees0_360(heading);
-		this.autoDeg = (int)Utils.normalizeDegrees0_360(headingAuto);
-		this.rudder = (int)Utils.normalizeDegrees180_180(rudder);
+		this.heading = (int)Utils.normalizeDegrees0To360(heading);
+		this.autoDeg = (int)Utils.normalizeDegrees0To360(headingAuto);
+		this.rudder = (int)Utils.normalizeDegrees180To180(rudder);
 		this.error = error.value;
 		this.status = status.value;
 		this.turning = turn;
