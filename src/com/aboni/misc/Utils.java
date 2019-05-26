@@ -208,4 +208,18 @@ public class Utils {
 		}
 		return String.format("%03d %06.3f %s", deg, min, pp);
 	}
+
+	public static String formatLatitude(double d) {
+		double dAbs = Math.abs(d);
+		int deg = (int) Math.floor(dAbs);
+		double min = (dAbs-deg)*60.0;
+		return String.format("%02d %06.3f %s", deg, min, (d>0)?"N":"S");
+	}
+
+	public static String formatLongitude(double d) {
+		double dAbs = Math.abs(d);
+		int deg = (int) Math.floor(dAbs);
+		double min = (dAbs-deg)*60.0;
+		return String.format("%03d %06.3f %s", deg, min, (d>0)?"E":"W");
+	}
 }
