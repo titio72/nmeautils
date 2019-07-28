@@ -10,6 +10,24 @@ import net.sf.marineapi.nmea.parser.SentenceFactory;
 public class NMEA2JSONbTest {
 
 	@Test
+	public void testMWVMeters() {
+		String s="$WIMWV,301.2,R,11.7,M,A*17";
+		JSONObject j = new NMEA2JSONb().convert(SentenceFactory.getInstance().createParser(s));
+		assertNotNull(j);
+		assertEquals(22.742928, j.getDouble("speed"), 0.001);
+		assertEquals("K", j.getString("unit"));
+	}
+
+	@Test
+	public void testMWVKnots() {
+		String s="$WIMWV,301.2,R,11.7,N,A";
+		JSONObject j = new NMEA2JSONb().convert(SentenceFactory.getInstance().createParser(s));
+		assertNotNull(j);
+		assertEquals(11.7, j.getDouble("speed"), 0.001);
+		assertEquals("K", j.getString("unit"));
+	}
+
+	@Test
 	public void testRMC() {
 		String s = "$IIRMC,133754.00,A,5046.305,N,00132.959,W,5.30,107.3,151118,0.9,W,A";
 		JSONObject j = new NMEA2JSONb().convert(SentenceFactory.getInstance().createParser(s));

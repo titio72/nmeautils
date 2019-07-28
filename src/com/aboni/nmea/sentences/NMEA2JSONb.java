@@ -4,10 +4,7 @@ import com.aboni.misc.Utils;
 import com.aboni.seatalk.Stalk84;
 import net.sf.marineapi.nmea.parser.DataNotAvailableException;
 import net.sf.marineapi.nmea.sentence.*;
-import net.sf.marineapi.nmea.util.Date;
-import net.sf.marineapi.nmea.util.Measurement;
-import net.sf.marineapi.nmea.util.Side;
-import net.sf.marineapi.nmea.util.Time;
+import net.sf.marineapi.nmea.util.*;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
@@ -232,8 +229,21 @@ public class NMEA2JSONb {
 		JSONObject json = create(s);
 		json.put(TOPIC, (s.isTrue()?"MWV_T":"MWV_R")); // override topic
 		json.put(ANGLE, s.getAngle());
-		json.put(SPEED, s.getSpeed());
-		json.put("unit", s.getSpeedUnit().toString());
+
+		double speed;
+		switch (s.getSpeedUnit()) {
+			case METER:
+				speed = s.getSpeed() * 1.94384;
+				break;
+			case KMH:
+				speed = s.getSpeed() / 1.852;
+				break;
+			default:
+				speed = s.getSpeed();
+				break;
+		}
+		json.put(SPEED, speed);
+		json.put("unit", "K");
 		return json;
 	}
 
