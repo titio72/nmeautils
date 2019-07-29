@@ -5,6 +5,7 @@ import com.aboni.nmea.sentences.VWRSentence;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.*;
 import net.sf.marineapi.nmea.util.Side;
+import net.sf.marineapi.nmea.util.Units;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -93,6 +94,7 @@ public class WindStreamTest {
 			s.setAngle(angle);
 			s.setSpeed(speed);
 			s.setTrue(trueWind);
+			s.setSpeedUnit(Units.KNOT);
 			this.onSentence(s, time);
 			return s;
 		}
@@ -149,8 +151,8 @@ public class WindStreamTest {
 
 	@Test
 	public void test_CalcMWVT_MWD() {
-		// MWV_R & VHW are given annd valid
-		// MWV_T & MWD are not give
+		// MWV_R & VHW are given and valid
+		// MWV_T & MWD are not given
 
 		WS ws = new WS(false, false);
 
