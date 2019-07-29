@@ -58,34 +58,11 @@ public class NMEATrueWind {
 				s.setMagneticWindDirection(Utils.round(md, 2));
 			}
 
-			double speed = getSpeedKnots(eTWind.ev);
+			double speed = Utils.getSpeedKnots(eTWind.ev);
 			s.setWindSpeedKnots(speed);
 			s.setWindSpeed(Utils.round(speed * 0.51444444444, 2));
 			
 			eWind.setEvent(s, time);
-		}
-	}
-
-	private static double getSpeedKnots(MWVSentence s) {
-		if (s!=null) {
-			double speed;
-			try {
-				switch (s.getSpeedUnit()) {
-					case METER:
-						speed = Utils.round(s.getSpeed() * 0.51444444444, 2);
-						break;
-					case KMH:
-						speed = Utils.round(s.getSpeed() / 1.852, 2);
-						break;
-					default:
-						speed = s.getSpeed();
-				}
-			} catch (DataNotAvailableException e) {
-				speed = 0.0;
-			}
-			return speed;
-		} else {
-			return 0.0;
 		}
 	}
 
@@ -102,7 +79,7 @@ public class NMEATrueWind {
 			MWVSentence mwvt = (MWVSentence) SentenceFactory.getInstance().createParser(id, SentenceId.MWV);
 			double s = eSpeed.ev.getSpeedKnots();
 			double wdm = eAWind.ev.getAngle();
-			double ws = getSpeedKnots(eAWind.ev);
+			double ws = Utils.getSpeedKnots(eAWind.ev);
 			TrueWind tw = new TrueWind(s, wdm, ws);
 			mwvt.setAngle(Utils.normalizeDegrees0To360(tw.getTrueWindDeg()));
 			mwvt.setSpeed(tw.getTrueWindSpeed());

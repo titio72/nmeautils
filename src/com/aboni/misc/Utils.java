@@ -5,6 +5,7 @@ import net.sf.geographiclib.GeodesicData;
 import net.sf.marineapi.nmea.parser.DataNotAvailableException;
 import net.sf.marineapi.nmea.sentence.HDGSentence;
 import net.sf.marineapi.nmea.sentence.HeadingSentence;
+import net.sf.marineapi.nmea.sentence.MWVSentence;
 import net.sf.marineapi.nmea.sentence.VHWSentence;
 import net.sf.marineapi.nmea.util.CompassPoint;
 import net.sf.marineapi.nmea.util.Position;
@@ -13,6 +14,34 @@ import net.sf.marineapi.nmea.util.Position;
 public class Utils {
 
 	private Utils() {
+	}
+
+	/**
+	 * Convert wind speed in knots
+	 * @param s The wind sentence to extract the wind speed from
+	 * @return The wind speed in knots
+	 */
+	public static double getSpeedKnots(MWVSentence s) {
+		if (s!=null) {
+			double speed;
+			try {
+				switch (s.getSpeedUnit()) {
+					case METER:
+						speed = Utils.round(s.getSpeed() / 0.5144444, 2);
+						break;
+					case KMH:
+						speed = Utils.round(s.getSpeed() / 1.852, 2);
+						break;
+					default:
+						speed = s.getSpeed();
+				}
+			} catch (DataNotAvailableException e) {
+				speed = 0.0;
+			}
+			return speed;
+		} else {
+			return 0.0;
+		}
 	}
 
 	/**
