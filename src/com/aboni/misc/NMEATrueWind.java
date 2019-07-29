@@ -1,6 +1,7 @@
 package com.aboni.misc;
 
 import com.aboni.geo.TrueWind;
+import net.sf.marineapi.nmea.parser.DataNotAvailableException;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.*;
 import net.sf.marineapi.nmea.util.Units;
@@ -56,11 +57,35 @@ public class NMEATrueWind {
 				md = Utils.normalizeDegrees0To360(md);
 				s.setMagneticWindDirection(Utils.round(md, 2));
 			}
-			
-			s.setWindSpeedKnots(eTWind.ev.getSpeed());
-			s.setWindSpeed(Utils.round(eTWind.ev.getSpeed()*0.51444444444, 2));
+
+			double speed = getSpeedKnots(eTWind.ev);
+			s.setWindSpeedKnots(speed);
+			s.setWindSpeed(Utils.round(speed * 0.51444444444, 2));
 			
 			eWind.setEvent(s, time);
+		}
+	}
+
+	private static double getSpeedKnots(MWVSentence s) {
+		if (s!=null) {
+			double speed;
+			try {
+				switch (s.getSpeedUnit()) {
+					case METER:
+						speed = Utils.round(s.getSpeed() * 0.51444444444, 2);
+						break;
+					case KMH:
+						speed = Utils.round(s.getSpeed() / 1.852, 2);
+						break;
+					default:
+						speed = s.getSpeed();
+				}
+			} catch (DataNotAvailableException e) {
+				speed = 0.0;
+			}
+			return speed;
+		} else {
+			return 0.0;
 		}
 	}
 
@@ -77,7 +102,7 @@ public class NMEATrueWind {
 			MWVSentence mwvt = (MWVSentence) SentenceFactory.getInstance().createParser(id, SentenceId.MWV);
 			double s = eSpeed.ev.getSpeedKnots();
 			double wdm = eAWind.ev.getAngle();
-			double ws = eAWind.ev.getSpeed();
+			double ws = getSpeedKnots(eAWind.ev);
 			TrueWind tw = new TrueWind(s, wdm, ws);
 			mwvt.setAngle(Utils.normalizeDegrees0To360(tw.getTrueWindDeg()));
 			mwvt.setSpeed(tw.getTrueWindSpeed());
