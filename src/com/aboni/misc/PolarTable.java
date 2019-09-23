@@ -24,7 +24,7 @@ public class PolarTable {
 
     private float[] maxSpeeds;
     private float[][] speeds;
-    private int reachAngle;
+    private int beatAngle = 180;
     private int maxWindSpeed = 20;
     	
     
@@ -200,7 +200,7 @@ public class PolarTable {
 				}
 			}
 			if (notZero) {
-				reachAngle = angle;
+                beatAngle = Math.min(angle, beatAngle);
 				interpolateRow(ws, bs, angle);
 			}
 		}
@@ -259,8 +259,8 @@ public class PolarTable {
 		}
 	}
 
-	public int getReachAngle() {
-		return reachAngle; 
+    public int getBeatAngle() {
+        return beatAngle;
 	}
 	
 }
