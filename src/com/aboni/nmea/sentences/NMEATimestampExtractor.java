@@ -7,7 +7,6 @@ import net.sf.marineapi.nmea.util.DataStatus;
 import net.sf.marineapi.nmea.util.Date;
 import net.sf.marineapi.nmea.util.Time;
 
-import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -18,9 +17,6 @@ public class NMEATimestampExtractor {
 	private NMEATimestampExtractor() {
 
 	}
-
-	private static final DecimalFormat fh = new DecimalFormat("+00");
-	private static final DecimalFormat fm = new DecimalFormat("00");
 
 	private static class DateAndTime {
 		Time t = null;
@@ -112,6 +108,7 @@ public class NMEATimestampExtractor {
 	 * @throws GPSTimeException In case of malformed sentence date/time information
 	 * @deprecated Use extractTimestamp instead
 	 */
+	@Deprecated
 	public static Calendar getTimestamp(Sentence s) throws GPSTimeException {
 		OffsetDateTime d = extractTimestamp(s);
 		if (d != null) {

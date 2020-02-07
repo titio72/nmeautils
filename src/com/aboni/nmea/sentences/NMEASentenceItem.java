@@ -5,7 +5,6 @@ import net.sf.marineapi.nmea.sentence.Sentence;
 
 import java.util.StringTokenizer;
 
-@SuppressWarnings("unused")
 public class NMEASentenceItem {
 
 	private Sentence sentence;
