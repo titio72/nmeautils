@@ -10,10 +10,6 @@ public class SpeedMovingAverage implements MovingAverage {
 	private double mAvg = Double.NaN;
 	private final List<Sample> samples = new LinkedList<>();
 
-	public SpeedMovingAverage() {
-		// nothing to do here
-	}
-	
 	public SpeedMovingAverage(long period) {
 		this.period = period;
 	}

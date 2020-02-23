@@ -10,11 +10,15 @@ import net.sf.marineapi.nmea.util.Time;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-@SuppressWarnings("unused")
 public class NMEAUtils {
 
 	private NMEAUtils() {}
 
+    /**
+     * Extract the position form a position sentence if and anly if the sentence is valid and it status is ACTIVE.
+     * @param posSentence The sentence the position must be extracted from.
+     * @return The position if valid, null otherwise
+     */
     public static Position getPosition(PositionSentence posSentence) {
         if (posSentence.isValid()) {
             if (posSentence instanceof RMCSentence) {
@@ -30,36 +34,6 @@ public class NMEAUtils {
         return null;
     }
 
-    /**
-     * Extract the position form a RMC sentence if and anly if the sentence is valid and it status is ACTIVE.
-     * @param rmc The sentence the position must be extracted from.
-     * @return The position.
-     */
-    public static Position getPosition(RMCSentence rmc) {
-        if (rmc!=null && rmc.isValid() && rmc.getStatus()==DataStatus.ACTIVE) {
-            return rmc.getPosition();
-        } else {
-            return null;
-        }
-    }
-
-    public static Time getTime(Sentence timeSentence) {
-        if (timeSentence instanceof TimeSentence) {
-            return ((TimeSentence)timeSentence).getTime();
-        } else { 
-            return null;
-        }
-    }
-
-    public static Date getDate(Sentence dateSentence) {
-        if (dateSentence instanceof DateSentence) {
-            return ((DateSentence)dateSentence).getDate();
-        } else { 
-            Calendar now = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-            return new Date(now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH));
-        }
-    }
-	
 	/**
 	 * Get distance in NM between two positions.
 	 * @param p1 The first position.
@@ -82,37 +56,21 @@ public class NMEAUtils {
 	}
 
     public static Calendar getTimestamp(RMCSentence s) {
-    	return getTimestamp(s.getTime(), s.getDate());
+        try {
+            return NMEATimestampExtractor.getTimestamp(s);
+        } catch (NMEATimestampExtractor.GPSTimeException e) {
+            return null;
+        }
     }
 
     public static Calendar getTimestampOptimistic(RMCSentence s) {
     	try {
-    		return getTimestamp(s.getTime(), s.getDate());
+    		return NMEATimestampExtractor.getTimestamp(s);
     	} catch (Exception e) {
     		return Calendar.getInstance();
     	}
     }
     
-    public static Calendar getTimestamp(Time time, Date date) { 
-       	int h = time.getOffsetHours();
-    	int m = time.getOffsetMinutes();
-    	Calendar c;
-    	if (h==0 && m==0) {
-	    	c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-    	} else {
-	    	String s = String.format("+%02d:%02d", h, m);
-	    	c = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT" + s));
-    	}
-        c.set(Calendar.MILLISECOND, 0);
-        c.set(Calendar.SECOND, (int)time.getSeconds());
-        c.set(Calendar.MINUTE, time.getMinutes());
-        c.set(Calendar.HOUR_OF_DAY, time.getHour());
-        c.set(Calendar.YEAR, date.getYear());
-        c.set(Calendar.MONTH, date.getMonth()-1);
-        c.set(Calendar.DAY_OF_MONTH, date.getDay());
-        return c;
-    }
-
     private static boolean registered = false;
     
     public static synchronized void registerExtraSentences() {

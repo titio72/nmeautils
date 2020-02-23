@@ -8,6 +8,8 @@ import net.sf.marineapi.nmea.util.Date;
 import net.sf.marineapi.nmea.util.Time;
 
 import java.text.DecimalFormat;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -38,7 +40,7 @@ public class NMEATimestampExtractor {
 		
 	}
 	
-	private static DateAndTime extractTimestamp(Sentence s) throws GPSTimeException {
+	private static DateAndTime extractDateAndTime(Sentence s) throws GPSTimeException {
 		Date d = null;
 		Time t = null;
 		try {
@@ -80,8 +82,17 @@ public class NMEATimestampExtractor {
 		return c;
 	}
 
+	public static OffsetDateTime extractTimestamp(Sentence s) throws GPSTimeException {
+		Calendar c = getTimestamp(s);
+		if (c != null) {
+			return OffsetDateTime.ofInstant(c.toInstant(), ZoneId.of("UTC"));
+		} else {
+			return null;
+		}
+	}
+
 	public static Calendar getTimestamp(Sentence s) throws GPSTimeException {
-		DateAndTime dt = extractTimestamp(s);
+		DateAndTime dt = extractDateAndTime(s);
 		if (dt!=null) {
 			return getCalendar(dt);
 		} else {
