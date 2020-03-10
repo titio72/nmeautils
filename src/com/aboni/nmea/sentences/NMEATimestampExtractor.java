@@ -18,7 +18,7 @@ public class NMEATimestampExtractor {
 
 	}
 
-	private static class DateAndTime {
+	private static class NMEADateAndTime {
 		Time t = null;
 		Date d = null;
 	}
@@ -31,7 +31,7 @@ public class NMEATimestampExtractor {
 		private static final long serialVersionUID = 1L;
 	}
 
-	private static DateAndTime extractInfo(Sentence s) throws GPSTimeException {
+	private static NMEADateAndTime extractInfo(Sentence s) throws GPSTimeException {
 		Date d = null;
 		Time t = null;
 		try {
@@ -50,7 +50,7 @@ public class NMEATimestampExtractor {
             throw new GPSTimeException("Error extracting GPS time {" + s + "} e {" + e + "}");
 		}
 		if (d != null && t != null) {
-			DateAndTime tStamp = new DateAndTime();
+			NMEADateAndTime tStamp = new NMEADateAndTime();
 			tStamp.t = t;
 			tStamp.d = d;
 			return tStamp;
@@ -59,7 +59,7 @@ public class NMEATimestampExtractor {
 		}
 	}
 
-	private static OffsetDateTime convert(DateAndTime dt) {
+	private static OffsetDateTime convert(NMEADateAndTime dt) {
 		int hh = dt.t.getOffsetHours();
 		int hm = dt.t.getOffsetMinutes();
 		return OffsetDateTime.of(
@@ -76,7 +76,7 @@ public class NMEATimestampExtractor {
 	 * @throws GPSTimeException In case of malformed sentence date/time information
 	 */
 	public static OffsetDateTime extractTimestamp(Sentence s) throws GPSTimeException {
-		DateAndTime dt = extractInfo(s);
+		NMEADateAndTime dt = extractInfo(s);
 		if (dt != null) {
 			return convert(dt);
 		} else {
@@ -92,7 +92,7 @@ public class NMEATimestampExtractor {
 	 * @throws GPSTimeException In case of malformed sentence date/time information
 	 */
 	public static Instant extractInstant(Sentence s) throws GPSTimeException {
-		DateAndTime dt = extractInfo(s);
+		NMEADateAndTime dt = extractInfo(s);
 		if (dt != null) {
 			return convert(dt).toInstant();
 		} else {
