@@ -41,19 +41,20 @@ public class AngleMovingAverage implements MovingAverage {
 	 * @see com.aboni.misc.MovingAverage#setSample(long, double)
 	 */
 	@Override
-	public void setSample(long ts, double angle) {
+	public double setSample(long ts, double angle) {
 		synchronized (this) {
 			setTime(ts);
-	
+
 			double a = Utils.normalizeDegrees0To360(angle);
 			samples.add(new Sample(ts, a));
 			if (Double.isNaN(mAvg)) {
 				mAvg = a;
 			} else {
 				double a1 = Utils.getNormal(mAvg, a);
-				mAvg = ( mAvg * (samples.size()-1) + a1 ) / samples.size();
+				mAvg = (mAvg * (samples.size() - 1) + a1) / samples.size();
 				mAvg = Utils.normalizeDegrees0To360(mAvg);
 			}
+			return mAvg;
 		}
 	}
 

@@ -1,16 +1,21 @@
 package com.aboni.misc;
 
-@SuppressWarnings("unused")
+/**
+ * Calculate the moving average over a time window.
+ * Usage:
+ * Set the desired period (the size of the time window) in milliseconds.
+ * Add the samples (pairs of time and value) incrementally.
+ * If no samples are available the shift of the window can be triggered independently (@see setTime)
+ */
 public interface MovingAverage {
 
-	void setPeriod(long period);
+    void setPeriod(long period);
 
-	long getPeriod();
+    long getPeriod();
 
-	void setSample(long ts, double angle);
+    double setTime(long ts);
 
-	double getAvg();
+    double setSample(long ts, double value);
 
-	double setTime(long ts);
-
+    double getAvg();
 }

@@ -1,7 +1,6 @@
 package com.aboni.misc;
 
 import com.aboni.geo.TrueWind;
-import net.sf.marineapi.nmea.parser.DataNotAvailableException;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.*;
 import net.sf.marineapi.nmea.util.Units;
