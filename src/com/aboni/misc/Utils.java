@@ -17,12 +17,26 @@ public class Utils {
 	}
 
 	/**
+	 * Checks is a timestamp is older than a given age.
+	 *
+	 * @param ts  The timestamp to be checked in ms (unix time)
+	 * @param now The current timestamp (unix time). If -1 the system time will be used instead.
+	 * @param age The age in ms
+	 * @return true is the given timestamp is older than the age or it's 0, false otherwise.
+	 */
+	public static boolean isOlderThan(long ts, long now, long age) {
+		if (now == -1) now = System.currentTimeMillis();
+		return ts > 0 && (now - ts) > age;
+	}
+
+	/**
 	 * Convert wind speed in knots
+	 *
 	 * @param s The wind sentence to extract the wind speed from
 	 * @return The wind speed in knots
 	 */
 	public static double getSpeedKnots(MWVSentence s) {
-		if (s!=null) {
+		if (s != null) {
 			double speed;
 			try {
 				switch (s.getSpeedUnit()) {
