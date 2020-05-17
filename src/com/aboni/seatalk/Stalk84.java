@@ -160,16 +160,16 @@ public class Stalk84 {
 	}
 	
 	public Stalk84(String...d) {
-		String[] data = new String[9];
-		StringBuilder b = new StringBuilder("$STALK,");
-		for (int i=0; i<d.length; i++) {
-			data[i] = d[i];
-			b.append(",").append(d[i]);
-		}
-		sentence = b.toString();
-		if (!data[0].equals("84")) throw new UnsupportedSentenceException("Type is not 84");
-		calc(data);
-	}
+        String[] data = new String[9];
+        StringBuilder b = new StringBuilder("$STALK,");
+        for (int i = 0; i < d.length; i++) {
+            data[i] = d[i];
+            b.append(",").append(d[i]);
+        }
+        sentence = b.toString();
+        if (!"84".equals(data[0])) throw new UnsupportedSentenceException("Type is not 84");
+        calc(data);
+    }
 	
 	public int getHeading() {
 		return heading;

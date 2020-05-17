@@ -5,6 +5,7 @@ import net.sf.marineapi.nmea.util.Position;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Date;
 
 @SuppressWarnings("unused")
@@ -23,11 +24,15 @@ public class GeoPositionT extends Position {
 	public GeoPositionT(Position p) {
 		this(System.currentTimeMillis(), p);
 	}
-	
+
 	private long timestamp;
 
 	public long getTimestamp() {
 		return timestamp;
+	}
+
+	public Instant getInstant() {
+		return Instant.ofEpochMilli(timestamp);
 	}
 
 	public void setTimestamp(long timestamp) {
@@ -37,10 +42,10 @@ public class GeoPositionT extends Position {
 	@Override
 	public String toString() {
 		DateFormat f = new SimpleDateFormat("HH:mm:ss");
-		return f.format(new Date(timestamp)) + 
-				String.format(" %8.4f %s %8.4f %s", getLatitude(), 
+		return f.format(new Date(timestamp)) +
+				String.format(" %8.4f %s %8.4f %s", getLatitude(),
 						Utils.getLatitudeEmisphere(getLatitude()),
-						getLongitude(), 
+						getLongitude(),
 						Utils.getLongitudeEmisphere(getLongitude()));
 	}
 }

@@ -7,11 +7,10 @@ import net.sf.marineapi.nmea.util.DataStatus;
 import net.sf.marineapi.nmea.util.Date;
 import net.sf.marineapi.nmea.util.Time;
 
-import java.text.DecimalFormat;
+import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Calendar;
-import java.util.TimeZone;
 
 public class NMEATimestampExtractor {
 
@@ -19,47 +18,39 @@ public class NMEATimestampExtractor {
 
 	}
 
-	private static final DecimalFormat fh = new DecimalFormat("+00");
-	private static final DecimalFormat fm = new DecimalFormat("00");
-
-	private static class DateAndTime {
+	private static class NMEADateAndTime {
 		Time t = null;
 		Date d = null;
 	}
-	
-	public static class GPSTimeException extends Exception {
 
+	public static class GPSTimeException extends Exception {
 		public GPSTimeException(String msg) {
 			super(msg);
 		}
-		
-		/**
-		 * 
-		 */
+
 		private static final long serialVersionUID = 1L;
-		
 	}
-	
-	private static DateAndTime extractDateAndTime(Sentence s) throws GPSTimeException {
+
+	private static NMEADateAndTime extractInfo(Sentence s) throws GPSTimeException {
 		Date d = null;
 		Time t = null;
 		try {
 			if (s instanceof ZDASentence && s.isValid()) {
-				ZDASentence zda = (ZDASentence)s;
+				ZDASentence zda = (ZDASentence) s;
 				d = zda.getDate();
 				t = zda.getTime();
 			} else if (s instanceof RMCSentence && s.isValid()) {
-				RMCSentence r = (RMCSentence)s;
-				if (r.getStatus()==DataStatus.ACTIVE) {
+				RMCSentence r = (RMCSentence) s;
+				if (r.getStatus() == DataStatus.ACTIVE) {
 					d = r.getDate();
 					t = r.getTime();
 				}
 			}
 		} catch (Exception e) {
-            throw new GPSTimeException("Error extracting GPS time {" + s + "} e {" + e + "}");
+			throw new GPSTimeException("Error extracting GPS time {" + s + "} e {" + e + "}");
 		}
-		if (d!=null && t!=null) {
-			DateAndTime tStamp = new DateAndTime();
+		if (d != null && t != null) {
+			NMEADateAndTime tStamp = new NMEADateAndTime();
 			tStamp.t = t;
 			tStamp.d = d;
 			return tStamp;
@@ -67,34 +58,63 @@ public class NMEATimestampExtractor {
 			return null;
 		}
 	}
-	
-	private static Calendar getCalendar(DateAndTime dt) {
-        int hh = dt.t.getOffsetHours();
-        int hm = dt.t.getOffsetHours();
-        String h = "GMT" + fh.format(hh) + ":" + fm.format(hm); 
-        TimeZone tz = TimeZone.getTimeZone(h);
 
-        Calendar c = Calendar.getInstance(tz);
-		//noinspection MagicConstant
-		c.set(dt.d.getYear(), dt.d.getMonth()-1, dt.d.getDay(), dt.t.getHour(), dt.t.getMinutes(), (int)dt.t.getSeconds());
-		c.set(Calendar.MILLISECOND, (int)(dt.t.getSeconds()-(int)dt.t.getSeconds())*1000);
-
-		return c;
+	private static OffsetDateTime convert(NMEADateAndTime dt) {
+		int hh = dt.t.getOffsetHours();
+		int hm = dt.t.getOffsetMinutes();
+		return OffsetDateTime.of(
+				dt.d.getYear(), dt.d.getMonth(), dt.d.getDay(),
+				dt.t.getHour(), dt.t.getMinutes(), (int) dt.t.getSeconds(), 0,
+				ZoneOffset.ofHoursMinutes(hh, hm));
 	}
 
+	/**
+	 * Extract a valid OffsetDateTime object from a sentence.
+	 *
+	 * @param s The time or date/time sentence
+	 * @return A valid Calendar object or null when no date/time info is contained in the sentence
+	 * @throws GPSTimeException In case of malformed sentence date/time information
+	 */
 	public static OffsetDateTime extractTimestamp(Sentence s) throws GPSTimeException {
-		Calendar c = getTimestamp(s);
-		if (c != null) {
-			return OffsetDateTime.ofInstant(c.toInstant(), ZoneId.of("UTC"));
+		NMEADateAndTime dt = extractInfo(s);
+		if (dt != null) {
+			return convert(dt);
 		} else {
 			return null;
 		}
 	}
 
+	/**
+	 * Extract a valid Instant object from a sentence.
+	 *
+	 * @param s The time or date/time sentence
+	 * @return A valid Calendar object or null when no date/time info is contained in the sentence
+	 * @throws GPSTimeException In case of malformed sentence date/time information
+	 */
+	public static Instant extractInstant(Sentence s) throws GPSTimeException {
+		NMEADateAndTime dt = extractInfo(s);
+		if (dt != null) {
+			return convert(dt).toInstant();
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Extract a valid Calendar object from a sentence.
+	 *
+	 * @param s The time or date/time sentence
+	 * @return A valid Calendar object or null when no date/time info is contained in the sentence
+	 * @throws GPSTimeException In case of malformed sentence date/time information
+	 * @deprecated Use extractTimestamp instead
+	 */
+	@Deprecated
 	public static Calendar getTimestamp(Sentence s) throws GPSTimeException {
-		DateAndTime dt = extractDateAndTime(s);
-		if (dt!=null) {
-			return getCalendar(dt);
+		OffsetDateTime d = extractTimestamp(s);
+		if (d != null) {
+			Calendar c = Calendar.getInstance();
+			c.setTimeInMillis(d.toInstant().toEpochMilli());
+			return c;
 		} else {
 			return null;
 		}

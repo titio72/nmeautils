@@ -25,17 +25,18 @@ public class SpeedMovingAverage implements MovingAverage {
 	}
 
 	@Override
-	public void setSample(long ts, double value) {
-		synchronized (this) {
-			setTime(ts);
-			samples.add(new Sample(ts, value));
-			if (Double.isNaN(mAvg)) {
-				mAvg = value;
-			} else {
-				mAvg = ( mAvg * (samples.size()-1) + value ) / samples.size();
-			}
-		}
-	}
+    public double setSample(long ts, double value) {
+        synchronized (this) {
+            setTime(ts);
+            samples.add(new Sample(ts, value));
+            if (Double.isNaN(mAvg)) {
+                mAvg = value;
+            } else {
+                mAvg = (mAvg * (samples.size() - 1) + value) / samples.size();
+            }
+            return mAvg;
+        }
+    }
 
 	@Override
 	public double getAvg() {

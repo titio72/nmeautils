@@ -1,22 +1,20 @@
 package com.aboni.nmea.sentences;
 
-import static org.junit.Assert.*;
+import net.sf.marineapi.nmea.parser.SentenceFactory;
+import net.sf.marineapi.nmea.sentence.RMCSentence;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import net.sf.marineapi.nmea.parser.SentenceFactory;
-import net.sf.marineapi.nmea.sentence.RMCSentence;
-import net.sf.marineapi.nmea.util.Date;
-import net.sf.marineapi.nmea.util.Time;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class NMEAUtilsTest {
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 	}
 
 	@Test

@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-@SuppressWarnings("unused")
 public class RateMovingAverage implements MovingAverage {
 
 	private long period = 60L * 1000L;
@@ -29,17 +28,18 @@ public class RateMovingAverage implements MovingAverage {
 	}
 
 	@Override
-	public void setSample(long ts, double value) {
-		synchronized (this) {
-			setTime(ts);
-			samples.add(new Sample(ts, value));
-			if (Double.isNaN(mAvg)) {
-				mAvg = value;
-			} else {
-				mAvg += value;
-			}
-		}
-	}
+    public double setSample(long ts, double value) {
+        synchronized (this) {
+            setTime(ts);
+            samples.add(new Sample(ts, value));
+            if (Double.isNaN(mAvg)) {
+                mAvg = value;
+            } else {
+                mAvg += value;
+            }
+            return mAvg;
+        }
+    }
 
 	@Override
 	public double getAvg() {
