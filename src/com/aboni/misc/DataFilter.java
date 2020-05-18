@@ -6,6 +6,7 @@ public class DataFilter {
 	}
 
     public static double getLPFReading(double alpha, double prevOutput, double input) {
-        return prevOutput + alpha * (input - prevOutput);
+        if (Double.isNaN(prevOutput)) return input;
+        else return prevOutput + alpha * (input - prevOutput);
     }
 }
