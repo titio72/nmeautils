@@ -26,7 +26,7 @@ public class Utils {
 	 */
 	public static boolean isOlderThan(long ts, long now, long age) {
 		if (now == -1) now = System.currentTimeMillis();
-		return ts > 0 && (now - ts) > age;
+		return (now - ts) > age;
 	}
 
 	/**
