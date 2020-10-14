@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 public class NMEASentenceItem {
 
 	private Sentence sentence;
-	private String sentenceString;
+	private final String sentenceString;
 	private long timestamp;
 	private String data;
 	

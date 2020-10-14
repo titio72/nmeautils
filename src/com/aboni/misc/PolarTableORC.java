@@ -36,8 +36,8 @@ twa/tws;6;8;10;12;14;16;20
 180;0;0;0;0;0;7.44;0
 180;0;0;0;0;0;0;8.17
      */
-    private List<Double> winds = new ArrayList<>();
-    private List<Integer> standardAngles = new ArrayList<>();
+    private final List<Double> winds = new ArrayList<>();
+    private final List<Integer> standardAngles = new ArrayList<>();
     private double[][] speeds;
 
     public PolarTableORC() {

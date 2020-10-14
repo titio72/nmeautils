@@ -1,6 +1,5 @@
 package com.aboni.misc;
 
-import com.aboni.nmea.sentences.NMEASentenceFilter;
 import com.aboni.nmea.sentences.VWRSentence;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.*;
@@ -16,6 +15,10 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class WindStreamTest {
+
+	private interface NMEASentenceFilter {
+		boolean match(Sentence s, String source);
+	}
 
 	private static class WS extends WindStream {
 
