@@ -30,6 +30,19 @@ public class Utils {
 	}
 
 	/**
+	 * Checks is a timestamp is not newer than a given age.
+	 *
+	 * @param ts  The timestamp to be checked in ms (unix time)
+	 * @param now The current timestamp (unix time). If -1 the system time will be used instead.
+	 * @param age The age in ms
+	 * @return true is the given timestamp is not newer than the age or it's 0, false otherwise.
+	 */
+	public static boolean isNotNewerThan(long ts, long now, long age) {
+		if (now == -1) now = System.currentTimeMillis();
+		return (now - ts) >= age;
+	}
+
+	/**
 	 * Convert wind speed in knots
 	 *
 	 * @param s The wind sentence to extract the wind speed from
