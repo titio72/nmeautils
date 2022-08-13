@@ -10,6 +10,9 @@ import net.sf.marineapi.nmea.sentence.VHWSentence;
 import net.sf.marineapi.nmea.util.CompassPoint;
 import net.sf.marineapi.nmea.util.Position;
 
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
+
 @SuppressWarnings("unused")
 public class Utils {
 
@@ -255,14 +258,37 @@ public class Utils {
 	public static String formatLatitude(double d) {
 		double dAbs = Math.abs(d);
 		int deg = (int) Math.floor(dAbs);
-		double min = (dAbs-deg)*60.0;
-		return String.format("%02d %06.3f %s", deg, min, (d>0)?"N":"S");
+		double min = (dAbs - deg) * 60.0;
+		return String.format("%02d %06.3f %s", deg, min, (d > 0) ? "N" : "S");
 	}
 
 	public static String formatLongitude(double d) {
 		double dAbs = Math.abs(d);
 		int deg = (int) Math.floor(dAbs);
-		double min = (dAbs-deg)*60.0;
-		return String.format("%03d %06.3f %s", deg, min, (d>0)?"E":"W");
+		double min = (dAbs - deg) * 60.0;
+		return String.format("%03d %06.3f %s", deg, min, (d > 0) ? "E" : "W");
+	}
+
+	public static long[] printGCStats() {
+		long totalGarbageCollections = 0;
+		long garbageCollectionTime = 0;
+
+		for (GarbageCollectorMXBean gc :
+				ManagementFactory.getGarbageCollectorMXBeans()) {
+
+			long count = gc.getCollectionCount();
+
+			if (count >= 0) {
+				totalGarbageCollections += count;
+			}
+
+			long time = gc.getCollectionTime();
+
+			if (time >= 0) {
+				garbageCollectionTime += time;
+			}
+		}
+
+		return new long[]{totalGarbageCollections, garbageCollectionTime};
 	}
 }
