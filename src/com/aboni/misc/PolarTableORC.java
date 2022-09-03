@@ -127,6 +127,7 @@ twa/tws;6;8;10;12;14;16;20
     }
 
     private double getWind(int ix) {
+        if (ix<0) return 0;
         ix = Math.min(ix, winds.size() - 1);
         return winds.get(ix);
     }
@@ -171,10 +172,10 @@ twa/tws;6;8;10;12;14;16;20
         double w1 = getWind(iW1);
         double a2 = getAngle(iA2 + 1);
         double w2 = getWind(iW1 + 1);
-        double s11 = speeds[iA2][iW1];
-        double s22 = speeds[iA2 >= standardAngles.size() ? iA2 : (iA2 + 1)][iW1 >= winds.size() ? iW1 : (iW1 + 1)];
+        double s11 = (iW1<0)?0:speeds[iA2][iW1];
+        double s22 = speeds[iA2 >= standardAngles.size() ? iA2 : (iA2 + 1)][iW1 >= (winds.size()-1) ? iW1 : (iW1 + 1)];
         double x12 = Math.sqrt(Math.pow(a2 - a1, 2) + Math.pow(w2 - w1, 2));
-        double x = Math.sqrt(Math.pow(angle - a1, 2) + Math.pow(wind - w1, 2));
+        double x = Math.sqrt(Math.pow(angle - a1, 2) + Math.pow(Math.min(wind, w1) - w1, 2));
         return interpolate(0, s11, x12, s22, x);
     }
 }

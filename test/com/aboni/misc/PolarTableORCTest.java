@@ -53,7 +53,7 @@ public class PolarTableORCTest {
     public void testBeamWindLowWind() {
         float speed = t.getSpeed(90, 3);
         assertTrue(5.77 > speed);
-        assertTrue(0.00 < speed);
+        assertTrue(0.00 <= speed);
     }
 
 }
