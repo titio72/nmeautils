@@ -1,10 +1,13 @@
 package com.aboni.nmea.sentences;
 
-import com.aboni.misc.Utils;
 import com.aboni.seatalk.Stalk84;
+import com.aboni.utils.Utils;
 import net.sf.marineapi.nmea.parser.DataNotAvailableException;
 import net.sf.marineapi.nmea.sentence.*;
-import net.sf.marineapi.nmea.util.*;
+import net.sf.marineapi.nmea.util.Date;
+import net.sf.marineapi.nmea.util.Measurement;
+import net.sf.marineapi.nmea.util.Side;
+import net.sf.marineapi.nmea.util.Time;
 import org.json.JSONObject;
 
 import java.text.DateFormat;

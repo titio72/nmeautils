@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.aboni</groupId>
 	<artifactId>NMEAUtils</artifactId>
-	<version>0.2-SNAPSHOT</version>
+	<version>0.3-SNAPSHOT</version>
 	<build>
 		<testSourceDirectory>test</testSourceDirectory>
 		<sourceDirectory>src</sourceDirectory>
@@ -29,18 +29,23 @@
 			<groupId>net.sf.marineapi</groupId>
 			<artifactId>marineapi</artifactId>
             <version>0.11.0</version>
-		</dependency>
-	    <dependency>
-  		    <groupId>net.sf.geographiclib</groupId>
-  		    <artifactId>GeographicLib-Java</artifactId>
-			<version>2.0</version>
-	   </dependency>
-	   <dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-		   <version>20220320</version>
-		</dependency>
-	</dependencies>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.geographiclib</groupId>
+            <artifactId>GeographicLib-Java</artifactId>
+            <version>2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20220320</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
+        </dependency>
+    </dependencies>
 	<scm>
 		<url>git@github.com:titio72/mmeautils</url>
 		<connection>scm:git:git@github.com:titio72/mmeautils</connection>

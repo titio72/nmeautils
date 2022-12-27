@@ -1,6 +1,6 @@
 package com.aboni.seatalk;
 
-import com.aboni.misc.Utils;
+import com.aboni.utils.Utils;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.parser.UnsupportedSentenceException;
 import net.sf.marineapi.nmea.sentence.Checksum;

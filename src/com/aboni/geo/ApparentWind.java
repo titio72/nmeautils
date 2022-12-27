@@ -1,6 +1,6 @@
 package com.aboni.geo;
 
-import com.aboni.misc.Utils;
+import com.aboni.utils.Utils;
 
 public class ApparentWind {
     

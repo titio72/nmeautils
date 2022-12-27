@@ -1,6 +1,6 @@
 package com.aboni.geo;
 
-import com.aboni.misc.Utils;
+import com.aboni.utils.Utils;
 import net.sf.geographiclib.Geodesic;
 import net.sf.geographiclib.GeodesicData;
 import net.sf.marineapi.nmea.util.Position;

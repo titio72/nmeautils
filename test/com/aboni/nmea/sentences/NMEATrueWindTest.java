@@ -1,16 +1,14 @@
 package com.aboni.nmea.sentences;
 
-import com.aboni.misc.NMEATrueWind;
+import com.aboni.utils.NMEATrueWind;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
-import net.sf.marineapi.nmea.sentence.*;
-import net.sf.marineapi.nmea.util.Date;
-import net.sf.marineapi.nmea.util.Time;
+import net.sf.marineapi.nmea.sentence.MWVSentence;
+import net.sf.marineapi.nmea.sentence.SentenceId;
+import net.sf.marineapi.nmea.sentence.TalkerId;
+import net.sf.marineapi.nmea.sentence.VHWSentence;
 import net.sf.marineapi.nmea.util.Units;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Calendar;
-import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
