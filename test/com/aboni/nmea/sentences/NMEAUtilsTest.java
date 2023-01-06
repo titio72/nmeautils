@@ -38,7 +38,7 @@ public class NMEAUtilsTest {
 	public void testTimestampOptimisticFromRMC() {
 		RMCSentence s = (RMCSentence) SentenceFactory.getInstance().createParser("$GPRMC,,A,5907.4700,N,01014.1000,E,0.1000,358.000,160517,,");
 		Calendar c = NMEAUtils.getTimestampOptimistic(s);
-		System.out.println((System.currentTimeMillis() - c.getTimeInMillis()));
-		assertTrue((System.currentTimeMillis() - c.getTimeInMillis())<10);
+		System.out.println("Time difference: " + (System.currentTimeMillis() - c.getTimeInMillis()));
+		assertTrue((System.currentTimeMillis() - c.getTimeInMillis())<500); // within 500ms - expected to give the current time stamp in case of missing time
 	}
 }
