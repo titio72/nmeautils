@@ -8,8 +8,7 @@ import org.junit.Test;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class NMEAUtilsTest {
 
@@ -31,6 +30,7 @@ public class NMEAUtilsTest {
 		cc.set(Calendar.SECOND, 47);
 		cc.set(Calendar.MILLISECOND, 0);
 
+		assertNotNull(c);
 		assertEquals(cc.getTimeInMillis(), c.getTimeInMillis());
 	}
 
@@ -38,6 +38,7 @@ public class NMEAUtilsTest {
 	public void testTimestampOptimisticFromRMC() {
 		RMCSentence s = (RMCSentence) SentenceFactory.getInstance().createParser("$GPRMC,,A,5907.4700,N,01014.1000,E,0.1000,358.000,160517,,");
 		Calendar c = NMEAUtils.getTimestampOptimistic(s);
+		System.out.println((System.currentTimeMillis() - c.getTimeInMillis()));
 		assertTrue((System.currentTimeMillis() - c.getTimeInMillis())<10);
 	}
 }
