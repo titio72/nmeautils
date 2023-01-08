@@ -27,11 +27,15 @@ import net.sf.marineapi.nmea.util.Position;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 @SuppressWarnings("unused")
 public class Utils {
 
-	private Utils() {
+    public static final Calendar UTC_CALENDAR = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+
+    private Utils() {
 	}
 
 	/**
@@ -97,12 +101,12 @@ public class Utils {
 	 * @return The true heading if possible or just the heading provided by the sentence.
 	 */
 	public static double getTrueHeading(HeadingSentence h) {
-		double dev = 0.0;
-		double var = 0.0;
-		try { if (h instanceof HDGSentence) dev = ((HDGSentence)h).getDeviation(); } catch (Exception ignored) { dev = 0.0; }
-		try { if (h instanceof HDGSentence) var = ((HDGSentence)h).getVariation(); } catch (Exception ignored) { var = 0.0; }
+		double deviation = 0.0;
+		double variation = 0.0;
+		try { if (h instanceof HDGSentence) deviation = ((HDGSentence)h).getDeviation(); } catch (Exception ignored) { deviation = 0.0; }
+		try { if (h instanceof HDGSentence) variation = ((HDGSentence)h).getVariation(); } catch (Exception ignored) { variation = 0.0; }
 		try {
-			return h.getHeading() + var + dev;
+			return h.getHeading() + variation + deviation;
 		} catch (DataNotAvailableException e) {
 			return Double.NaN;
 		}
