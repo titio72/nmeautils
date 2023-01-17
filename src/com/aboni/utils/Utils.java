@@ -27,7 +27,11 @@ import net.sf.marineapi.nmea.util.Position;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 @SuppressWarnings("unused")
@@ -35,7 +39,20 @@ public class Utils {
 
     public static final Calendar UTC_CALENDAR = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
+	private static final SimpleDateFormat ISO_TIMESTAMP_UTC_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+	static {
+		ISO_TIMESTAMP_UTC_FORMATTER.setTimeZone(TimeZone.getTimeZone("UTC"));
+	}
+
     private Utils() {
+	}
+
+	public static Date getISODateUTC(String sDate) throws ParseException {
+		return ISO_TIMESTAMP_UTC_FORMATTER.parse(sDate);
+	}
+
+	public static String formatISOTimestampUTC(Date date) {
+		return ISO_TIMESTAMP_UTC_FORMATTER.format(date);
 	}
 
 	/**

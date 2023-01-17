@@ -168,34 +168,6 @@ public class LogStringBuilder {
     public String toString() {
         return get();
     }
-/*
-    public void debug(@NotNull Log log) {
-        log.debug(get());
-    }
-
-    public void info(@NotNull Log log) {
-        log.info(get());
-    }
-
-    public void error(@NotNull Log log) {
-        log.error(get());
-    }
-
-    public void error(@NotNull Log log, Exception e) {
-        log.error(get(), e);
-    }
-
-    public void errorForceStacktrace(@NotNull Log log, Exception e) {
-        log.errorForceStacktrace(get(), e);
-    }
-
-    public void warn(@NotNull Log log) {
-        log.warning(get());
-    }
-
-    public void warn(@NotNull Log log, Exception e) {
-        log.warning(get(), e);
-    }*/
 
     public LogStringBuilder w(String s) {
         messageBuilder.append(s);
