@@ -48,4 +48,23 @@ public class JSONUtils {
             return true;
         }
     }
+
+    public static int getAttribute(JSONObject obj, String attribute, int defaultValue) {
+        if (obj.has(attribute)) return obj.getInt(attribute);
+        else return defaultValue;
+    }
+
+    public static double getAttribute(JSONObject obj, String attribute, double defaultValue) {
+        if (obj.has(attribute)) return obj.getDouble(attribute);
+        else return defaultValue;
+    }
+
+    public static String getAttribute(JSONObject obj, String attribute, String defaultValue) {
+        if (obj.has(attribute)) return obj.getString(attribute);
+        else return defaultValue;
+    }
+    public static boolean getAttribute(JSONObject obj, String attribute, boolean defaultValue) {
+        if (obj.has(attribute)) return obj.getBoolean(attribute);
+        else return defaultValue;
+    }
 }
