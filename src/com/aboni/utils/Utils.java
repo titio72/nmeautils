@@ -29,12 +29,10 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-@SuppressWarnings("unused")
 public class Utils {
 
     public static final Calendar UTC_CALENDAR = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -53,6 +51,10 @@ public class Utils {
 
 	public static String formatISOTimestampUTC(Date date) {
 		return ISO_TIMESTAMP_UTC_FORMATTER.format(date);
+	}
+
+	public static String formatISOTimestampUTC(long date) {
+		return formatISOTimestampUTC(new Date(date));
 	}
 
 	/**
