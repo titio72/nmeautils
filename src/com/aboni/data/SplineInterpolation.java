@@ -13,7 +13,7 @@
  * along with NMEARouter.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.aboni.utils;
+package com.aboni.data;
 
 import java.util.List;
 

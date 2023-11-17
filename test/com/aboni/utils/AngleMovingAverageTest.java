@@ -15,6 +15,9 @@
 
 package com.aboni.utils;
 
+import com.aboni.data.AngleMovingAverage;
+import com.aboni.data.MovingAverage;
+import com.aboni.data.Sample;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

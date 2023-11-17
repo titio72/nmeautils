@@ -28,36 +28,44 @@ You should have received a copy of the GNU General Public License
 along with NMEARouter.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.aboni.utils;
+package com.aboni.log;
 
-public class Pair<T, U> {
-    public final T first;
-    public final U second;
+import java.util.function.Supplier;
 
-    public Pair(T first, U second) {
-        this.first = first;
-        this.second = second;
+public interface Log {
+
+    boolean isDebug();
+
+    void error(String msg);
+
+    void error(Supplier<String> msg);
+
+    void error(String msg, Throwable t);
+
+    void error(Supplier<String> supplier, Throwable t);
+
+    void errorForceStacktrace(String msg, Throwable t);
+
+    void errorForceStacktrace(Supplier<String> supplier, Throwable t);
+
+    void warning(String msg);
+
+    void warning(Supplier<String> msg);
+
+    void warning(String msg, Exception e);
+
+    void warning(Supplier<String> msg, Exception e);
+
+    void info(String msg);
+
+    void info(Supplier<String> msg);
+
+    void infoFill(String msg);
+
+    void debug(String msg);
+
+    default void debug(Supplier<String> supplier) {
+        if (isDebug()) debug(supplier.get());
     }
 
-    @Override
-    public boolean equals(Object x) {
-        if (x instanceof Pair<?, ?>) {
-            Pair<?, ?> pair = (Pair<?, ?>) x;
-            if (first != null && second != null)
-                return first.equals(pair.first) && second.equals(pair.second);
-            else if (first == null && second != null)
-                return pair.first == null && second.equals(pair.second);
-            else if (first != null)
-                return first.equals(pair.first) && pair.second == null;
-            else
-                return pair.first == null && pair.second == null;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        return ((first != null) ? first.hashCode() : 0) + ((second != null) ? second.hashCode() : 0);
-    }
 }

@@ -15,6 +15,7 @@
 
 package com.aboni.utils;
 
+import com.aboni.data.SpeedMovingAverage;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

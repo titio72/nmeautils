@@ -15,6 +15,7 @@
 
 package com.aboni.utils;
 
+import com.aboni.data.LPFFilter;
 import com.aboni.nmea.sentences.VWRSentence;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.sentence.*;

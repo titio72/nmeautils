@@ -13,21 +13,26 @@
  * along with NMEARouter.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.aboni.utils;
+package com.aboni.data;
 
-@SuppressWarnings("unused")
-public class LPFFilter {
+public class Sample {
+    private final double value;
+    private final long ts;
 
-    private LPFFilter() {
+    public Sample(long ts, double value) {
+        this.value = value;
+        this.ts = ts;
     }
 
-    public static double getLPFReading(double alpha, double prevOutput, double input) {
-        if (Double.isNaN(prevOutput)) return input;
-        return prevOutput + alpha * (input - prevOutput);
+    public double getValue() {
+        return value;
     }
 
-    public static double getLPFReading(double alpha, double prevOutput, long tsPrev, double input, long ts) {
-        if (Double.isNaN(prevOutput)) return input;
-        return prevOutput + alpha * (input - prevOutput) * ((ts - tsPrev) / 1000.0);
+    public long getTs() {
+        return ts;
+    }
+
+    public long getAge(long now) {
+        return now - ts;
     }
 }

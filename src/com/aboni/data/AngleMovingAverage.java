@@ -13,7 +13,9 @@
  * along with NMEARouter.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.aboni.utils;
+package com.aboni.data;
+
+import com.aboni.utils.Utils;
 
 import java.util.Iterator;
 import java.util.LinkedList;

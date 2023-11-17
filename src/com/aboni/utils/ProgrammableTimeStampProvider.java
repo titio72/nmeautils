@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022,  Andrea Boni
+ * Copyright (c) 2020,  Andrea Boni
  * This file is part of NMEARouter.
  * NMEARouter is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,24 +15,20 @@
 
 package com.aboni.utils;
 
-public class Sample {
-    private final double value;
-    private final long ts;
+public class ProgrammableTimeStampProvider extends TimestampProvider {
 
-    public Sample(long ts, double value) {
-        this.value = value;
-        this.ts = ts;
+    private long timestamp;
+
+    public void setTimestamp(long ts) {
+        timestamp = ts;
     }
 
-    public double getValue() {
-        return value;
+    public void incrementBy(long ms) {
+        timestamp += ms;
     }
 
-    public long getTs() {
-        return ts;
-    }
-
-    public long getAge(long now) {
-        return now - ts;
+    @Override
+    public long getNow() {
+        return timestamp;
     }
 }

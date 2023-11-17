@@ -13,24 +13,21 @@
  * along with NMEARouter.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.aboni.utils;
+package com.aboni.data;
 
-/**
- * Calculate the moving average over a time window.
- * Usage:
- * Set the desired period (the size of the time window) in milliseconds.
- * Add the samples (pairs of time and value) incrementally.
- * If no samples are available the shift of the window can be triggered independently (@see setTime)
- */
-public interface MovingAverage {
+@SuppressWarnings("unused")
+public class LPFFilter {
 
-    void setPeriod(long period);
+    private LPFFilter() {
+    }
 
-    long getPeriod();
+    public static double getLPFReading(double alpha, double prevOutput, double input) {
+        if (Double.isNaN(prevOutput)) return input;
+        return prevOutput + alpha * (input - prevOutput);
+    }
 
-    double setTime(long ts);
-
-    double setSample(long ts, double value);
-
-    double getAvg();
+    public static double getLPFReading(double alpha, double prevOutput, long tsPrev, double input, long ts) {
+        if (Double.isNaN(prevOutput)) return input;
+        return prevOutput + alpha * (input - prevOutput) * ((ts - tsPrev) / 1000.0);
+    }
 }
