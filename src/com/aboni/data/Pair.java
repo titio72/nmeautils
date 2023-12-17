@@ -60,4 +60,9 @@ public class Pair<T, U> {
     public int hashCode() {
         return ((first != null) ? first.hashCode() : 0) + ((second != null) ? second.hashCode() : 0);
     }
+
+    @Override
+    public String toString() {
+        return String.format("{%s},{%s}", first, second);
+    }
 }
