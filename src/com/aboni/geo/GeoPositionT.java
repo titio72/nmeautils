@@ -7,6 +7,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
+import java.util.TimeZone;
 
 @SuppressWarnings("unused")
 public class GeoPositionT extends Position {
@@ -42,8 +43,9 @@ public class GeoPositionT extends Position {
 	@Override
 	public String toString() {
 		DateFormat f = new SimpleDateFormat("HH:mm:ss");
+		f.setTimeZone(TimeZone.getTimeZone("UTC"));
 		return f.format(new Date(timestamp)) +
-				String.format(" %8.4f %s %8.4f %s", getLatitude(),
+				String.format(" %11.7f %s %11.7f %s", getLatitude(),
 						Utils.getLatitudeEmisphere(getLatitude()),
 						getLongitude(),
 						Utils.getLongitudeEmisphere(getLongitude()));

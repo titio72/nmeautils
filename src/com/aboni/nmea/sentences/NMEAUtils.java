@@ -86,7 +86,6 @@ public class NMEAUtils {
     
     public static synchronized void registerExtraSentences() {
         if (!registered) {
-            SentenceFactory.getInstance().registerParser(VWRParser.NMEA_SENTENCE_TYPE, VWRParser.class);
             SentenceFactory.getInstance().registerParser(XDPParser.NMEA_SENTENCE_TYPE, XDPParser.class);
             registered = true;
         }

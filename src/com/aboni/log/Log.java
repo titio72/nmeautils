@@ -58,6 +58,10 @@ public interface Log {
 
     void info(String msg);
 
+    default void info(String msg, Object... args) {
+        info(()->String.format(msg, args));
+    }
+
     void info(Supplier<String> msg);
 
     void infoFill(String msg);
